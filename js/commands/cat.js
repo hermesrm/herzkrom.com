@@ -10,18 +10,25 @@ const catCommand = {
   id: "CAT",
   aliases: {
     es: ["cat"],
-    en: ["cat"]
+    en: ["cat"],
   },
   description: {
     es: "Muestra el contenido de un archivo o sección",
-    en: "Display file or section content"
+    en: "Display file or section content",
   },
 
   execute(context, args) {
     if (!args.length) {
       return {
         es: "Uso: cat <archivo | sección>",
-        en: "Usage: cat <file | section>"
+        en: "Usage: cat <file | section>",
+      }[context.lang];
+    }
+
+    if (args.length > 1) {
+      return {
+        es: "cat: demasiados argumentos",
+        en: "cat: too many arguments",
       }[context.lang];
     }
 
@@ -34,7 +41,7 @@ const catCommand = {
     if (!node) {
       return {
         es: "Archivo o sección no encontrada",
-        en: "File or section not found"
+        en: "File or section not found",
       }[context.lang];
     }
 
@@ -43,27 +50,29 @@ const catCommand = {
       const text = node.children.content.content?.[context.lang] || "";
       return {
         type: "animated",
-        text: text
+        text: text,
       };
     }
 
     // Archivo multilenguaje explícito - devolver como animado
     if (node.type === "file" && node.content) {
-      const text = node.content?.[context.lang] || {
-        es: "Idioma no disponible",
-        en: "Language not available"
-      }[context.lang];
+      const text =
+        node.content?.[context.lang] ||
+        {
+          es: "Idioma no disponible",
+          en: "Language not available",
+        }[context.lang];
       return {
         type: "animated",
-        text: text
+        text: text,
       };
     }
 
     return {
       es: "No se puede mostrar este elemento",
-      en: "Cannot display this element"
+      en: "Cannot display this element",
     }[context.lang];
-  }
+  },
 };
 
 export { catCommand };

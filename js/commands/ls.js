@@ -14,7 +14,7 @@ const directoryNames = {
   education: { es: "educación", en: "education" },
   projects: { es: "proyectos", en: "projects" },
   contact: { es: "contacto", en: "contact" },
-  pdf: { es: "pdf", en: "pdf" }
+  pdf: { es: "pdf", en: "pdf" },
 };
 
 function getDisplayName(name, lang) {
@@ -30,35 +30,54 @@ function normalizeName(value) {
 
 // Función inversa: convierte nombre traducido al nombre raw del filesystem
 function getInternalName(displayName, lang) {
-  const normalized = normalizeName(displayName);
-  // Buscar en el mapeo inverso
-  for (const [raw, translations] of Object.entries(directoryNames)) {
-    if (normalizeName(translations[lang]) === normalized) {
-      return raw;
+  const translateSegment = (segment) => {
+    if (!segment || segment === "." || segment === "..") return segment;
+    const normalized = normalizeName(segment);
+    for (const [raw, translations] of Object.entries(directoryNames)) {
+      if (normalizeName(translations[lang]) === normalized) {
+        return raw;
+      }
     }
+    return segment;
+  };
+
+  if (displayName && displayName.includes("/")) {
+    const hasLeadingSlash = displayName.startsWith("/");
+    const parts = displayName.split("/").filter((part) => part.length > 0);
+    const translated = parts.map((part) => translateSegment(part)).join("/");
+    return (hasLeadingSlash ? "/" : "") + translated;
   }
-  // Si no encuentra, asumir que es el nombre raw
-  return displayName;
+
+  return translateSegment(displayName);
 }
 
 const lsCommand = {
   id: "LS",
   aliases: {
     es: ["ls"],
-    en: ["ls"]
+    en: ["ls"],
   },
   description: {
     es: "Lista el contenido del directorio actual",
-    en: "List directory contents"
+    en: "List directory contents",
   },
 
   execute(context, args) {
+    const invalidFlag = args?.find((arg) => arg.startsWith("-") && arg !== "-l");
+    if (invalidFlag) {
+      const flag = invalidFlag.replace(/^-+/, "");
+      return {
+        es: `ls: opción inválida -- ${flag}`,
+        en: `ls: invalid option -- ${flag}`,
+      }[context.lang];
+    }
+
     const node = resolveCwd(context);
 
     if (!node || node.type !== "dir") {
       return {
         es: "No es un directorio",
-        en: "Not a directory"
+        en: "Not a directory",
       }[context.lang];
     }
 
@@ -79,7 +98,7 @@ const lsCommand = {
     });
 
     return lines.join("\n");
-  }
+  },
 };
 
 export { lsCommand, getDisplayName, getInternalName };

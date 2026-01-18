@@ -9,16 +9,22 @@ const rebootCommand = {
   id: "REBOOT",
   aliases: {
     es: ["reboot"],
-    en: ["reboot"]
+    en: ["reboot"],
   },
   description: {
     es: "Reinicia la consola simulada",
-    en: "Reboot the simulated console"
+    en: "Reboot the simulated console",
   },
 
-  execute() {
+  execute(context, args) {
+    if (args && args.length) {
+      return {
+        es: "reboot: demasiados argumentos",
+        en: "reboot: too many arguments",
+      }[context.lang];
+    }
     return "__REBOOT__"; // señal especial
-  }
+  },
 };
 
 export { rebootCommand };

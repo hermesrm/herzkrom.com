@@ -19,7 +19,7 @@ const aliasRegistry = {
     education: "cat /cv/education",
     projects: "cat /cv/projects",
     contact: "cat /cv/contact",
-    pdf: "cat /cv/pdf"
+    pdf: "cat /cv/pdf",
   },
   es: {
     acerca: "cat /cv/about",
@@ -29,9 +29,8 @@ const aliasRegistry = {
     educacion: "cat /cv/education",
     proyectos: "cat /cv/projects",
     contacto: "cat /cv/contact",
-    pdf: "cat /cv/pdf"
-  }
+    pdf: "cat /cv/pdf",
+  },
 };
 
 export { aliasRegistry };
-

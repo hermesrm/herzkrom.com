@@ -38,17 +38,10 @@ let clampScheduled = false;
 
 const MAX_HISTORY = 200;
 const MAX_OUTPUT_NODES = 600;
-const hasCoarsePointer = window.matchMedia?.("(pointer: coarse)")?.matches;
-const hasAnyFinePointer = window.matchMedia?.("(any-pointer: fine)")?.matches;
-const hasAnyHover = window.matchMedia?.("(any-hover: hover)")?.matches;
 const isLikelyMobileUa = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-const usesVirtualKeyboard =
-  isLikelyMobileUa ||
-  (hasCoarsePointer && !hasAnyFinePointer && !hasAnyHover);
 const desktopKeyHandlingEnabled = !isLikelyMobileUa;
 const debugInput =
-  window.location.hash.includes("debug-input") ||
-  window.location.search.includes("debug-input");
+  window.location.hash.includes("debug-input") || window.location.search.includes("debug-input");
 
 if (document.body) {
   document.body.classList.toggle("desktop-input", desktopKeyHandlingEnabled);
@@ -107,7 +100,7 @@ const commandRegistry = [
   pwdCommand,
   clearCommand,
   echoCommand,
-  rebootCommand
+  rebootCommand,
 ];
 
 /* =============================
@@ -121,7 +114,7 @@ const STORAGE_KEY_DISPLAY = "hermesrm_username_display"; // nombre formateado pa
 
 const UI_TEXT = {
   es: {
-    welcomeBack: name => `¡Bienvenido/a de vuelta, ${name}!`,
+    welcomeBack: (name) => `¡Bienvenido/a de vuelta, ${name}!`,
     continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
     answerLabel: "Respuesta",
     welcomeLines: [
@@ -130,19 +123,20 @@ const UI_TEXT = {
       "Perfil interactivo en modo CLI (Command‑Line Interface)",
       "",
       "Puede explorar el perfil mediante la simulación de comandos.",
-      ""
+      "",
     ],
     nameHint: "Introduzca su nombre si desea personalizar la sesión.",
     nameLabel: "Nombre",
     nameOptional: "(opcional)",
     nameNewHint: "(nuevo)",
     newNamePrompt: "Ingrese un nuevo nombre:",
-    startHint: "# Introduzca 'acerca' o 'habilidades' para comenzar; 'help' muestra todos los comandos.",
+    startHint:
+      "# Introduzca 'acerca' o 'habilidades' para comenzar; 'help' muestra todos los comandos.",
     invalidYesNo: "Por favor, responde con 's' (sí) o 'n' (no)",
-    welcome: name => `¡Bienvenido/a, ${name}!`
+    welcome: (name) => `¡Bienvenido/a, ${name}!`,
   },
   en: {
-    welcomeBack: name => `Welcome back, ${name}!`,
+    welcomeBack: (name) => `Welcome back, ${name}!`,
     continueQuestion: "Do you want to continue with this username? (y/n)",
     answerLabel: "Answer",
     welcomeLines: [
@@ -151,7 +145,7 @@ const UI_TEXT = {
       "Interactive CLI‑Mode Profile (Command‑Line Interface)",
       "",
       "Explore the profile through simulated commands.",
-      ""
+      "",
     ],
     nameHint: "Enter your name if you want to personalize the session.",
     nameLabel: "Name",
@@ -160,8 +154,8 @@ const UI_TEXT = {
     newNamePrompt: "Enter a new name:",
     startHint: "# Type 'about' or 'skills' to begin; 'help' shows all commands.",
     invalidYesNo: "Please answer with 'y' (yes) or 'n' (no)",
-    welcome: name => `Welcome, ${name}!`
-  }
+    welcome: (name) => `Welcome, ${name}!`,
+  },
 };
 
 function t(key, ...args) {
@@ -198,7 +192,7 @@ function getSavedUsername() {
   const displayName = localStorage.getItem(STORAGE_KEY_DISPLAY);
   return {
     prompt: promptName || null,
-    display: displayName || null
+    display: displayName || null,
   };
 }
 
@@ -218,8 +212,8 @@ function filterAliasesByLanguage(word, lang) {
 
   // Solo sugerir alias propios del idioma actual (evita los que existen en ambos)
   return Object.keys(current)
-    .filter(alias => normalizeForMatch(alias).startsWith(normalizedWord))
-    .filter(alias => !(alias in other));
+    .filter((alias) => normalizeForMatch(alias).startsWith(normalizedWord))
+    .filter((alias) => !(alias in other));
 }
 
 function normalizeForMatch(value) {
@@ -232,36 +226,36 @@ function normalizeForMatch(value) {
 function getCompletions(input, context, commandRegistry) {
   const trimmed = input.trim();
   const parts = trimmed.split(/\s+/);
-  
+
   // Si solo hay una palabra, podría ser comando o alias
   if (parts.length === 1) {
     const word = parts[0].toLowerCase();
     const normalizedWord = normalizeForMatch(word);
-    
+
     if (!word) return [];
-    
+
     // Buscar comandos que coincidan con el idioma actual
     const commandMatches = commandRegistry
-      .flatMap(cmd => cmd.aliases[context.lang] || [])
-      .filter(alias => normalizeForMatch(alias).startsWith(normalizedWord));
-    
+      .flatMap((cmd) => cmd.aliases[context.lang] || [])
+      .filter((alias) => normalizeForMatch(alias).startsWith(normalizedWord));
+
     // Alias solo del idioma activo (excluye los que también existen en el otro idioma)
     const aliasMatches = filterAliasesByLanguage(word, context.lang);
-    
+
     return [...commandMatches, ...aliasMatches];
   }
-  
+
   // Si tiene espacios, es "comando argumento"
   if (parts.length > 1) {
     const command = parts[0].toLowerCase();
     const lastPart = parts[parts.length - 1];
-    
+
     // Para cd y cat, autocomplatar rutas
     if ((command === "cd" || command === "cat") && lastPart) {
       return getPathCompletions(lastPart, context);
     }
   }
-  
+
   return [];
 }
 
@@ -270,7 +264,7 @@ function getPathCompletions(pathPrefix, context) {
     // Si es una ruta vacía o relativa corta, buscar en directorio actual
     let currentNode = null;
     let baseDir = "";
-    
+
     if (!pathPrefix || pathPrefix === "") {
       // Directorio actual
       currentNode = resolvePath(context, "").node || resolveCwd(context);
@@ -280,10 +274,10 @@ function getPathCompletions(pathPrefix, context) {
       const lastSlash = pathPrefix.lastIndexOf("/");
       baseDir = pathPrefix.slice(0, lastSlash + 1);
       const searchTerm = pathPrefix.slice(lastSlash + 1);
-      
+
       const dirResult = resolvePath(context, baseDir);
       if (!dirResult) return [];
-      
+
       currentNode = dirResult.node;
       pathPrefix = searchTerm;
     } else {
@@ -291,25 +285,25 @@ function getPathCompletions(pathPrefix, context) {
       currentNode = resolveCwd(context);
       baseDir = "";
     }
-    
+
     if (!currentNode || currentNode.type !== "dir") {
       return [];
     }
-    
+
     const normalizedPrefix = normalizeForMatch(pathPrefix);
     const items = Object.keys(currentNode.children || {});
     // Traducir nombres y filtrar por lo que el usuario escribió
-    const displayItems = items.map(name => ({
+    const displayItems = items.map((name) => ({
       raw: name,
-      display: getDisplayName(name, context.lang)
+      display: getDisplayName(name, context.lang),
     }));
 
-    const matches = displayItems.filter(item =>
+    const matches = displayItems.filter((item) =>
       normalizeForMatch(item.display).startsWith(normalizedPrefix)
     );
-    
+
     // Devolver nombres traducidos para mostrar
-    return matches.map(item => baseDir + item.display);
+    return matches.map((item) => baseDir + item.display);
   } catch (err) {
     console.error("Error en getPathCompletions:", err);
     return [];
@@ -323,6 +317,21 @@ function applyCompletion(input, completion) {
   }
   parts[parts.length - 1] = completion;
   return parts.join(" ");
+}
+
+function getCommonPrefix(items) {
+  if (!items.length) return "";
+  let prefix = items[0];
+  for (let i = 1; i < items.length; i++) {
+    const item = items[i];
+    let j = 0;
+    while (j < prefix.length && j < item.length && prefix[j] === item[j]) {
+      j++;
+    }
+    prefix = prefix.slice(0, j);
+    if (!prefix) break;
+  }
+  return prefix;
 }
 
 function showSuggestions(completions) {
@@ -349,6 +358,13 @@ function showSuggestions(completions) {
 function clearSuggestions() {
   suggestionsEl.style.display = "none";
   suggestionsEl.textContent = "";
+  resetTabCycle();
+}
+
+let tabCycleState = null;
+
+function resetTabCycle() {
+  tabCycleState = null;
 }
 
 /* =============================
@@ -449,7 +465,7 @@ function isNearBottom(element, threshold = 80) {
 function printLine(text, cssClass = "") {
   const div = document.createElement("div");
   // ES: Espacio duro mantiene visibles las líneas en blanco. EN: Non-breaking space keeps blank lines visible.
-  div.textContent = (text === "" ? "\u00A0" : text);
+  div.textContent = text === "" ? "\u00A0" : text;
   if (cssClass) div.classList.add(cssClass);
   output.appendChild(div);
   trimOutputNodes();
@@ -475,7 +491,7 @@ async function renderHelp(helpData) {
   // Desactivar scroll suave temporalmente para mejor rendimiento
   const originalScrollBehavior = terminal.style.scrollBehavior;
   terminal.style.scrollBehavior = "auto";
-  
+
   const addSection = async (title, items) => {
     printLine(title);
     printLine("");
@@ -495,7 +511,7 @@ async function renderHelp(helpData) {
       line.appendChild(descSpan);
       output.appendChild(line);
       trimOutputNodes();
-      
+
       if (isNearBottom(terminal)) {
         terminal.scrollTop = terminal.scrollHeight;
       }
@@ -506,18 +522,18 @@ async function renderHelp(helpData) {
   await addSection(helpData.primaryTitle, helpData.primary);
   await addSection(helpData.systemTitle, helpData.system);
   printLine(helpData.note, "comment");
-  
+
   // Scroll final
   if (isNearBottom(terminal)) {
     terminal.scrollTop = terminal.scrollHeight;
   }
-  
+
   // Restaurar comportamiento original de scroll
   terminal.style.scrollBehavior = originalScrollBehavior;
 }
 
-// Imprime contenido animado carácter por carácter (máquina de escribir)
-async function printAnimated(text, delay = 5) {
+// Imprime contenido sin animación (salida instantánea estilo consola)
+async function printOutput(text) {
   const div = document.createElement("div");
   div.style.whiteSpace = "pre-wrap";
   div.style.wordBreak = "break-word";
@@ -567,13 +583,13 @@ function buildPrompt() {
   const user = SessionContext.visitor.name || "guest";
   const host = "hermesrm.com";
   const path = getCwdPath(SessionContext);
-  
+
   // Reemplazar la ruta de inicio con ~ y mantenerlo en rutas anidadas
   const displayPath = path === "/" ? "~" : "~" + path;
-  
+
   return {
     userHost: `${user}@${host}`,
-    path: displayPath
+    path: displayPath,
   };
 }
 
@@ -618,6 +634,9 @@ function detectBrowserLang() {
 }
 
 SessionContext.lang = detectBrowserLang();
+if (document.documentElement) {
+  document.documentElement.lang = SessionContext.lang;
+}
 
 /* =============================
    Welcome message
@@ -629,14 +648,14 @@ let nameHintNode = null;
 
 function showWelcome() {
   const saved = getSavedUsername();
-  
+
   if (saved.prompt) {
     // Hay nombre guardado - preguntar si continuar con él
     SessionContext.visitor.name = saved.prompt; // Prompt seguro: minúsculas, sin espacios
     savedUsernameMode = true;
 
     const displayName = saved.display || formatDisplayName(saved.prompt);
-    
+
     printLine(t("welcomeBack", displayName));
     printLine("");
     printLine(t("continueQuestion"));
@@ -644,7 +663,7 @@ function showWelcome() {
     setPromptSymbol(t("answerLabel"));
   } else {
     // Primer acceso - pedir nombre
-    t("welcomeLines").forEach(line => printLine(line));
+    t("welcomeLines").forEach((line) => printLine(line));
     nameHintNode = printLine(t("nameHint")); // ES: Se remueve tras capturar. EN: Removed after capture.
     setPromptSymbol(t("nameLabel"), t("nameOptional"));
   }
@@ -667,17 +686,17 @@ async function handleEnter() {
     // Modo: Preguntar si continuar con nombre guardado
     if (savedUsernameMode) {
       const response = rawInput.trim().toLowerCase();
-      
+
       if (response === "s" || response === "y" || response === "si" || response === "yes") {
         // Acepta el nombre guardado
         awaitingName = false;
         savedUsernameMode = false;
-        
+
         // Remover la pregunta del usuario
         removeLastLine();
-        
+
         printLine(t("startHint"), "comment");
-        
+
         scrollToBottom();
         renderPrompt();
         return;
@@ -686,10 +705,9 @@ async function handleEnter() {
         savedUsernameMode = false;
         changingName = true; // Marcar que estamos cambiando de nombre
         clearSavedUsername();
-        
+
         printLine(t("newNamePrompt"));
         setPromptSymbol(t("nameLabel"), t("nameNewHint"));
-        
 
         scrollToBottom();
         if (hiddenInputEl) hiddenInputEl.focus({ preventScroll: true });
@@ -701,7 +719,7 @@ async function handleEnter() {
         return;
       }
     }
-    
+
     // Modo: Ingresar nombre por primera vez o nuevo
     const rawName = rawInput.trim();
 
@@ -813,7 +831,7 @@ async function handleEnter() {
     if (result.type === "animated") {
       // Contenido animado (filesystem: acerca, experiencia, etc.)
       printLine("");
-      await printAnimated(result.text);
+      await printOutput(result.text);
       printLine("");
     } else if (result.type === "help") {
       // Separación visual para ayuda - animado
@@ -823,14 +841,14 @@ async function handleEnter() {
     } else if (isAliasCommand || isHelpCommand) {
       // Espacios para comandos alias o help en texto plano - animado
       printLine("");
-      await printAnimated(result);
+      await printOutput(result);
       printLine("");
     } else {
       // Sin espacios extra para comandos nativos - animado
-      await printAnimated(result);
+      await printOutput(result);
     }
   }
-  
+
   scrollToBottom();
   renderPrompt();
   requestAnimationFrame(ensurePromptVisible);
@@ -878,12 +896,20 @@ if (!hiddenInputEl) {
     if (!isComposing) {
       syncInputFromHidden();
     }
+    if (!hiddenInputEl.value) {
+      clearSuggestions();
+      resetTabCycle();
+    }
     logInputEvent("input", hiddenInputEl.value);
   });
 
   // Manejar teclas especiales (Tab/Enter/Historial)
   hiddenInputEl.addEventListener("keydown", (e) => {
     logInputEvent("keydown", { key: e.key, value: hiddenInputEl.value });
+
+    if (e.key !== "Tab") {
+      resetTabCycle();
+    }
 
     if (e.key === "Escape") {
       clearSuggestions();
@@ -895,14 +921,57 @@ if (!hiddenInputEl) {
       if (!awaitingName) {
         const input = hiddenInputEl.value;
         try {
-          const completions = getCompletions(input, SessionContext, commandRegistry);
+          const storedCompletions = tabCycleState?.completions;
+          const completions = storedCompletions ||
+            getCompletions(input, SessionContext, commandRegistry);
           if (completions.length === 1) {
             setInputValue(applyCompletion(input, completions[0]));
             clearSuggestions();
+            resetTabCycle();
           } else if (completions.length > 1) {
-            showSuggestions(completions);
+            const canCycle =
+              tabCycleState &&
+              tabCycleState.completions.join("\u0000") === completions.join("\u0000");
+
+            if (!canCycle) {
+              const commonPrefix = getCommonPrefix(completions);
+              const completedInput = commonPrefix
+                ? applyCompletion(input, commonPrefix)
+                : input;
+
+              tabCycleState = {
+                baseInput: completedInput,
+                completions,
+                index: 0,
+              };
+
+              if (completedInput !== input) {
+                setInputValue(completedInput);
+              }
+              showSuggestions(completions);
+              return;
+            }
+
+            let nextIndex = tabCycleState.index;
+            let nextValue = applyCompletion(
+              tabCycleState.baseInput,
+              tabCycleState.completions[nextIndex]
+            );
+
+            if (nextValue === input) {
+              nextIndex = (nextIndex + 1) % tabCycleState.completions.length;
+              nextValue = applyCompletion(
+                tabCycleState.baseInput,
+                tabCycleState.completions[nextIndex]
+              );
+            }
+
+            setInputValue(nextValue);
+            tabCycleState.index = (nextIndex + 1) % tabCycleState.completions.length;
+            showSuggestions(tabCycleState.completions);
           } else {
             clearSuggestions();
+            resetTabCycle();
           }
         } catch (err) {
           console.error("Error en autocompletación:", err);

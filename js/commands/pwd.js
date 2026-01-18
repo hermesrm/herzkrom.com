@@ -9,16 +9,22 @@ const pwdCommand = {
   id: "PWD",
   aliases: {
     es: ["pwd"],
-    en: ["pwd"]
+    en: ["pwd"],
   },
   description: {
     es: "Muestra la ruta actual",
-    en: "Print working directory"
+    en: "Print working directory",
   },
 
-  execute(context) {
+  execute(context, args) {
+    if (args && args.length) {
+      return {
+        es: "pwd: demasiados argumentos",
+        en: "pwd: too many arguments",
+      }[context.lang];
+    }
     return getCwdPath(context);
-  }
+  },
 };
 
 export { pwdCommand };

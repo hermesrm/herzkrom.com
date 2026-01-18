@@ -5,10 +5,24 @@
 
 /*
   ES: Estructura virtual: dirs (type 'dir') con children; archivos multilenguaje (type 'file').
-      El nodo interno 'content' no se expone al usuario, solo sirve para el render.
+    El nodo interno 'content' no se expone al usuario, solo sirve para el render.
   EN: Virtual structure: dirs (type 'dir') with children; multilingual files (type 'file').
-      Internal 'content' nodes are not exposed to the user, only used for rendering.
+    Internal 'content' nodes are not exposed to the user, only used for rendering.
 */
+
+/**
+ * @typedef {Object} FileNode
+ * @property {"file"} type
+ * @property {string} name
+ * @property {{es: string, en: string}} content
+ */
+
+/**
+ * @typedef {Object} DirNode
+ * @property {"dir"} type
+ * @property {string} name
+ * @property {Record<string, DirNode|FileNode>} children
+ */
 
 const fileSystem = {
   type: "dir",
@@ -43,10 +57,10 @@ My value proposition is based on:
 - Integrating business and technology, translating strategic needs into effective technical solutions.
 - Optimizing processes through automation, standardization, and auditable control.
 - Strengthening security and operational continuity in complex corporate environments.
-- Driving innovation with an institutional vision, ensuring long‑term technological efficiency and sustainability.`
-              }
-            }
-          }
+- Driving innovation with an institutional vision, ensuring long‑term technological efficiency and sustainability.`,
+              },
+            },
+          },
         },
 
         experience: {
@@ -58,10 +72,10 @@ My value proposition is based on:
               name: "content",
               content: {
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
         },
 
         skills: {
@@ -100,10 +114,10 @@ My value proposition is based on:
 - Virtualization / Containers (VirtualBox labs, basic Proxmox, basic Docker)
 - ISO 9001 (processes, procedures, document control)
 - Networking (operational level) (TCP/IP, static IP configuration, connectivity diagnostics, MAC filtering, basic switch management)
-- Office productivity (Excel, Word, PowerPoint)`
-              }
-            }
-          }
+- Office productivity (Excel, Word, PowerPoint)`,
+              },
+            },
+          },
         },
 
         competencies: {
@@ -115,10 +129,10 @@ My value proposition is based on:
               name: "content",
               content: {
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
         },
 
         education: {
@@ -130,10 +144,10 @@ My value proposition is based on:
               name: "content",
               content: {
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
         },
 
         projects: {
@@ -145,10 +159,10 @@ My value proposition is based on:
               name: "content",
               content: {
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
         },
 
         contact: {
@@ -160,10 +174,10 @@ My value proposition is based on:
               name: "content",
               content: {
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
         },
 
         pdf: {
@@ -179,14 +193,14 @@ My value proposition is based on:
                 en: `PDF résumé available at: /assets/HermesRM_CV.pdf`
                 */
                 es: `Estado: módulo en construcción.`,
-                en: `Status: module under construction.`
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+                en: `Status: module under construction.`,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
 export { fileSystem };

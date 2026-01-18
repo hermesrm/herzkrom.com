@@ -7,17 +7,23 @@ const clearCommand = {
   id: "CLEAR",
   aliases: {
     es: ["clear"],
-    en: ["clear"]
+    en: ["clear"],
   },
   description: {
     es: "Limpia la pantalla de la terminal",
-    en: "Clear the terminal screen"
+    en: "Clear the terminal screen",
   },
 
-  execute(context) {
+  execute(context, args) {
+    if (args && args.length) {
+      return {
+        es: "clear: demasiados argumentos",
+        en: "clear: too many arguments",
+      }[context.lang];
+    }
     // ES: Señal para que main.js limpie el output. EN: Signal for main.js to clear output.
     return "__CLEAR__";
-  }
+  },
 };
 
 export { clearCommand };

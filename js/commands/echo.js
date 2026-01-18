@@ -7,11 +7,11 @@ const echoCommand = {
   id: "ECHO",
   aliases: {
     es: ["echo"],
-    en: ["echo"]
+    en: ["echo"],
   },
   description: {
     es: "Muestra un texto en la pantalla",
-    en: "Display a line of text"
+    en: "Display a line of text",
   },
 
   execute(context, args) {
@@ -20,8 +20,8 @@ const echoCommand = {
     }
 
     // ES: Normaliza salida a string. EN: Normalize output to string.
-    return args.map(arg => String(arg)).join(" ");
-  }
+    return args.map((arg) => String(arg)).join(" ");
+  },
 };
 
 export { echoCommand };

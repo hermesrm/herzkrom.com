@@ -10,15 +10,30 @@ import { fileSystem } from "./filesystem.js";
   EN: SessionContext holds all live session state; do not persist state outside this object.
 */
 
+/**
+ * @typedef {import("./filesystem.js").DirNode} DirNode
+ */
+
+/**
+ * @typedef {Object} SessionState
+ * @property {string[]} cwd
+ * @property {"es"|"en"} lang
+ * @property {string[]} history
+ * @property {number|null} historyIndex
+ * @property {{name: string|null}} visitor
+ * @property {DirNode} fs
+ */
+
+/** @type {SessionState} */
 const SessionContext = {
-  cwd: [],                 // Directorio actual como array (ej. ['cv','skills'])
-  lang: "es",              // Idioma activo ('es' | 'en')
-  history: [],             // Historial de comandos
-  historyIndex: null,      // Índice para navegación con ↑ ↓
+  cwd: [], // Directorio actual como array (ej. ['cv','skills'])
+  lang: "es", // Idioma activo ('es' | 'en')
+  history: [], // Historial de comandos
+  historyIndex: null, // Índice para navegación con ↑ ↓
   visitor: {
-    name: null             // Nombre introducido por el visitante
+    name: null, // Nombre introducido por el visitante
   },
-  fs: fileSystem           // Referencia al filesystem virtual
+  fs: fileSystem, // Referencia al filesystem virtual
 };
 
 /* =============================
@@ -127,10 +142,4 @@ function resolveNode(context, path) {
   return node;
 }
 
-export {
-  SessionContext,
-  resolveCwd,
-  getCwdPath,
-  resolvePath,
-  resolveNode
-};
+export { SessionContext, resolveCwd, getCwdPath, resolvePath, resolveNode };

@@ -22,7 +22,7 @@ function tokenize(input) {
   const tokens = input.trim().split(/\s+/);
   return {
     command: tokens[0] || "",
-    args: tokens.slice(1)
+    args: tokens.slice(1),
   };
 }
 
@@ -39,14 +39,12 @@ function executeInput(rawInput, context, commandRegistry) {
   const resolvedInput = resolveAlias(rawInput, context.lang);
   const { command, args } = tokenize(resolvedInput);
 
-  const cmd = commandRegistry.find(c =>
-    c?.aliases?.[context.lang]?.includes(command)
-  );
+  const cmd = commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
 
   if (!cmd) {
     return {
       es: `Comando no reconocido: ${command}`,
-      en: `Command not found: ${command}`
+      en: `Command not found: ${command}`,
     }[context.lang];
   }
 
@@ -55,13 +53,9 @@ function executeInput(rawInput, context, commandRegistry) {
   } catch (error) {
     return {
       es: `Error ejecutando comando: ${error.message}`,
-      en: `Error executing command: ${error.message}`
+      en: `Error executing command: ${error.message}`,
     }[context.lang];
   }
 }
 
-export {
-  resolveAlias,
-  tokenize,
-  executeInput
-};
+export { resolveAlias, tokenize, executeInput };
