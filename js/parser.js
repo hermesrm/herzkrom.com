@@ -36,8 +36,12 @@ function executeInput(rawInput, context, commandRegistry) {
     return "";
   }
 
+
   const resolvedInput = resolveAlias(rawInput, context.lang);
   const { command, args } = tokenize(resolvedInput);
+
+  // Pasar el comando original al contexto para validación de alias en idioma.js
+  context.inputCmd = command;
 
   const cmd = commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
 

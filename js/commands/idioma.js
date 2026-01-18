@@ -18,6 +18,16 @@ const languageCommand = {
   },
 
   execute(context, args) {
+                // Limitar el comando al alias correcto según el idioma
+                const inputCmd = context?.inputCmd || "";
+                if ((context.lang === "es" && inputCmd !== "idioma") || (context.lang === "en" && inputCmd !== "language")) {
+                  return {
+                    output: context.lang === 'es'
+                      ? "Comando no reconocido: " + inputCmd
+                      : "Command not found: " + inputCmd,
+                    code: 127,
+                  };
+                }
         // Mostrar ayuda si se solicita --help
         if (args.includes('--help')) {
           const helpText = context.lang === 'es'
