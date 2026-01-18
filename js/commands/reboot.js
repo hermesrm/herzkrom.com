@@ -17,11 +17,49 @@ const rebootCommand = {
   },
 
   execute(context, args) {
+        // Mostrar ayuda si se solicita --help
+        if (args.includes('--help')) {
+          const helpText = context.lang === 'es'
+            ? [
+                "Uso: reboot [opciones]",
+                "",
+                "Reinicia la consola simulada.",
+                "",
+                "Opciones:",
+                "  (Por implementar)",
+              ].join("\n")
+            : [
+                "Usage: reboot [options]",
+                "",
+                "Reboot the simulated console.",
+                "",
+                "Options:",
+                "  (To be implemented)",
+              ].join("\n");
+          return {
+            output: helpText,
+            code: 0,
+          };
+        }
     if (args && args.length) {
+      const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
+      if (invalidFlag) {
+        const flag = invalidFlag.replace(/^-+/, "");
+        const msg = context.lang === 'es'
+          ? `reboot: opción inválida -- ${flag}\nPrueba 'reboot --help' para más información.`
+          : `reboot: invalid option -- ${flag}\nTry 'reboot --help' for more information.`;
+        return {
+          output: msg,
+          code: 1,
+        };
+      }
+      const msg = context.lang === 'es'
+        ? "reboot: demasiados argumentos\nPrueba 'reboot --help' para más información."
+        : "reboot: too many arguments\nTry 'reboot --help' for more information.";
       return {
-        es: "reboot: demasiados argumentos",
-        en: "reboot: too many arguments",
-      }[context.lang];
+        output: msg,
+        code: 1,
+      };
     }
     return "__REBOOT__"; // señal especial
   },

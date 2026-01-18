@@ -18,6 +18,32 @@ const languageCommand = {
   },
 
   execute(context, args) {
+        // Mostrar ayuda si se solicita --help
+        if (args.includes('--help')) {
+          const helpText = context.lang === 'es'
+            ? [
+                "Uso: idioma <es|en> [opciones]",
+                "",
+                "Muestra o cambia el idioma de la sesión.",
+                "",
+                "Opciones:",
+                "  es    Cambia el idioma a español",
+                "  en    Cambia el idioma a inglés",
+              ].join("\n")
+            : [
+                "Usage: language <es|en> [options]",
+                "",
+                "Show or change the session language.",
+                "",
+                "Options:",
+                "  es    Change language to Spanish",
+                "  en    Change language to English",
+              ].join("\n");
+          return {
+            output: helpText,
+            code: 0,
+          };
+        }
     // Mostrar idioma actual e instrucciones
     if (!args || !args.length) {
       const currentLang = context.lang === "es" ? "Español (es)" : "English (en)";
@@ -41,11 +67,26 @@ const languageCommand = {
       }
     }
 
-    if (args.length > 1) {
+    const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
+    if (invalidFlag) {
+      const flag = invalidFlag.replace(/^-+/, "");
+      const msg = context.lang === 'es'
+        ? `idioma: opción inválida -- ${flag}\nPrueba 'idioma --help' para más información.`
+        : `idioma: invalid option -- ${flag}\nTry 'idioma --help' for more information.`;
       return {
-        es: "idioma: demasiados argumentos",
-        en: "language: too many arguments",
-      }[context.lang];
+        output: msg,
+        code: 1,
+      };
+    }
+
+    if (args.length > 1) {
+      const msg = context.lang === 'es'
+        ? "idioma: demasiados argumentos\nPrueba 'idioma --help' para más información."
+        : "idioma: too many arguments\nTry 'idioma --help' for more information.";
+      return {
+        output: msg,
+        code: 1,
+      };
     }
 
     const requested = args[0].toLowerCase();

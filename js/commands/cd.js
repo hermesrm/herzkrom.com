@@ -18,11 +18,51 @@ const cdCommand = {
   },
 
   execute(context, args) {
-    if (args.length > 1) {
+        // Mostrar ayuda si se solicita --help
+        if (args.includes('--help')) {
+          const helpText = context.lang === 'es'
+            ? [
+                "Uso: cd <directorio> [opciones]",
+                "",
+                "Cambia el directorio actual.",
+                "",
+                "Opciones:",
+                "  (Por implementar)",
+              ].join("\n")
+            : [
+                "Usage: cd <directory> [options]",
+                "",
+                "Change the current directory.",
+                "",
+                "Options:",
+                "  (To be implemented)",
+              ].join("\n");
+          return {
+            output: helpText,
+            code: 0,
+          };
+        }
+    // Opción inválida (solo acepta argumentos que no empiezan por '-')
+    const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
+    if (invalidFlag) {
+      const flag = invalidFlag.replace(/^-+/, "");
+      const msg = context.lang === 'es'
+        ? `cd: opción inválida -- ${flag}\nPrueba 'cd --help' para más información.`
+        : `cd: invalid option -- ${flag}\nTry 'cd --help' for more information.`;
       return {
-        es: "cd: demasiados argumentos",
-        en: "cd: too many arguments",
-      }[context.lang];
+        output: msg,
+        code: 1,
+      };
+    }
+
+    if (args.length > 1) {
+      const msg = context.lang === 'es'
+        ? "cd: demasiados argumentos\nPrueba 'cd --help' para más información."
+        : "cd: too many arguments\nTry 'cd --help' for more information.";
+      return {
+        output: msg,
+        code: 1,
+      };
     }
     let target = args[0] || "/";
 

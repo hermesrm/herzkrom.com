@@ -829,22 +829,21 @@ async function handleEnter() {
 
   if (result) {
     if (result.type === "animated") {
-      // Contenido animado (filesystem: acerca, experiencia, etc.)
       printLine("");
       await printOutput(result.text);
       printLine("");
     } else if (result.type === "help") {
-      // Separación visual para ayuda - animado
       printLine("");
       await renderHelp(result);
       printLine("");
     } else if (isAliasCommand || isHelpCommand) {
-      // Espacios para comandos alias o help en texto plano - animado
       printLine("");
       await printOutput(result);
       printLine("");
+    } else if (typeof result === "object" && result !== null && "output" in result) {
+      // Mostrar el campo output si existe (para errores y salidas de comandos)
+      await printOutput(result.output);
     } else {
-      // Sin espacios extra para comandos nativos - animado
       await printOutput(result);
     }
   }

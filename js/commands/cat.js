@@ -18,6 +18,30 @@ const catCommand = {
   },
 
   execute(context, args) {
+        // Mostrar ayuda si se solicita --help
+        if (args.includes('--help')) {
+          const helpText = context.lang === 'es'
+            ? [
+                "Uso: cat <archivo | sección> [opciones]",
+                "",
+                "Muestra el contenido de un archivo o sección.",
+                "",
+                "Opciones:",
+                "  (Por implementar)",
+              ].join("\n")
+            : [
+                "Usage: cat <file | section> [options]",
+                "",
+                "Display file or section content.",
+                "",
+                "Options:",
+                "  (To be implemented)",
+              ].join("\n");
+          return {
+            output: helpText,
+            code: 0,
+          };
+        }
     if (!args.length) {
       return {
         es: "Uso: cat <archivo | sección>",
@@ -25,18 +49,32 @@ const catCommand = {
       }[context.lang];
     }
 
-    if (args.length > 1) {
+    // Opción inválida (solo acepta argumentos que no empiezan por '-')
+    const invalidFlag = args.find((arg) => arg.startsWith("-"));
+    if (invalidFlag) {
+      const flag = invalidFlag.replace(/^-+/, "");
+      const msg = context.lang === 'es'
+        ? `cat: opción inválida -- ${flag}\nPrueba 'cat --help' para más información.`
+        : `cat: invalid option -- ${flag}\nTry 'cat --help' for more information.`;
       return {
-        es: "cat: demasiados argumentos",
-        en: "cat: too many arguments",
-      }[context.lang];
+        output: msg,
+        code: 1,
+      };
     }
 
-    // ES: Traduce nombre mostrado al nombre interno del filesystem. EN: Translate display name to raw FS name.
-    let target = args[0];
-    target = getInternalName(target, context.lang);
+    if (args.length > 1) {
+      const msg = context.lang === 'es'
+        ? "cat: demasiados argumentos\nPrueba 'cat --help' para más información."
+        : "cat: too many arguments\nTry 'cat --help' for more information.";
+      return {
+        output: msg,
+        code: 1,
+      };
+    }
 
-    const node = resolveNode(context, target);
+    const nodeName = args[0];
+    const internalName = getInternalName(nodeName, context.lang);
+    const node = resolveNode(context, internalName);
 
     if (!node) {
       return {

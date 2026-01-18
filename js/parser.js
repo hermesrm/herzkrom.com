@@ -42,9 +42,11 @@ function executeInput(rawInput, context, commandRegistry) {
   const cmd = commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
 
   if (!cmd) {
+    // Si el input tiene más de un token, mostrar el input completo para mayor claridad
+    const inputShown = rawInput.trim();
     return {
-      es: `Comando no reconocido: ${command}`,
-      en: `Command not found: ${command}`,
+      es: `Comando no reconocido: ${inputShown}`,
+      en: `Command not found: ${inputShown}`,
     }[context.lang];
   }
 

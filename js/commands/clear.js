@@ -15,11 +15,51 @@ const clearCommand = {
   },
 
   execute(context, args) {
+        // Mostrar ayuda si se solicita --help
+        if (args.includes('--help')) {
+          const helpText = context.lang === 'es'
+            ? [
+                "Uso: clear [opciones]",
+                "",
+                "Limpia la pantalla de la terminal.",
+                "",
+                "Opciones:",
+                "  (Por implementar)",
+              ].join("\n")
+            : [
+                "Usage: clear [options]",
+                "",
+                "Clear the terminal screen.",
+                "",
+                "Options:",
+                "  (To be implemented)",
+              ].join("\n");
+          return {
+            output: helpText,
+            code: 0,
+          };
+        }
     if (args && args.length) {
-      return {
-        es: "clear: demasiados argumentos",
-        en: "clear: too many arguments",
-      }[context.lang];
+      const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
+      if (invalidFlag) {
+        const flag = invalidFlag.replace(/^-+/, "");
+        const msg = context.lang === 'es'
+          ? `clear: opción inválida -- ${flag}\nPrueba 'clear --help' para más información.`
+          : `clear: invalid option -- ${flag}\nTry 'clear --help' for more information.`;
+        return {
+          output: msg,
+          code: 1,
+        };
+      }
+      if (args.length > 0) {
+        const msg = context.lang === 'es'
+          ? "clear: demasiados argumentos\nPrueba 'clear --help' para más información."
+          : "clear: too many arguments\nTry 'clear --help' for more information.";
+        return {
+          output: msg,
+          code: 1,
+        };
+      }
     }
     // ES: Señal para que main.js limpie el output. EN: Signal for main.js to clear output.
     return "__CLEAR__";
