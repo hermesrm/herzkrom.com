@@ -1,10 +1,10 @@
-# HermesRM - CLI Profile
+# Herzkrom - CLI Profile
 
 ## Español
 
 ### Resumen
 
-`hermesrm.com` es un currículum interactivo que simula una terminal en el navegador. El objetivo es presentar la información profesional (skills, experience, projects, contact, etc.) mediante comandos estilo UNIX dentro de una interfaz visual inspirada en Git Bash.
+`herzkrom.com` es un currículum interactivo que simula una terminal en el navegador. El objetivo es presentar la información profesional (skills, experience, projects, contact, etc.) mediante comandos estilo UNIX dentro de una interfaz visual inspirada en Git Bash.
 
 ### Cómo usar
 
@@ -76,7 +76,7 @@
 
 ### Summary
 
-`hermesrm.com` is an interactive résumé that emulates a terminal in the browser. It presents professional information (skills, experience, projects, contact, etc.) via UNIX-style commands inside a Git Bash–inspired UI.
+`herzkrom.com` is an interactive résumé that emulates a terminal in the browser. It presents professional information (skills, experience, projects, contact, etc.) via UNIX-style commands inside a Git Bash–inspired UI.
 
 ### How to use
 
