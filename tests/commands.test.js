@@ -7,6 +7,7 @@ import { catCommand } from "../js/commands/cat.js";
 import { helpCommand } from "../js/commands/help.js";
 import { languageCommand } from "../js/commands/idioma.js";
 import { pdfCommand } from "../js/commands/pdf.js";
+import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -26,6 +27,76 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("storage: blocked persistence does not break the session", () => {
+    const blockedStorage = {
+      getItem() {
+        throw new Error("Storage access denied");
+      },
+      setItem() {
+        throw new Error("Storage access denied");
+      },
+      removeItem() {
+        throw new Error("Storage access denied");
+      },
+    };
+
+    assert(
+      JSON.stringify(getSavedUsername(blockedStorage)) ===
+        JSON.stringify({ prompt: null, display: null }),
+      "Expected blocked reads to return an empty saved username"
+    );
+    saveUsername("guest", "Guest", blockedStorage);
+    clearSavedUsername(blockedStorage);
+  });
+
+  test("storage: inaccessible localStorage property does not break the session", () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+    Object.defineProperty(globalThis, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("Storage access denied");
+      },
+    });
+
+    try {
+      assert(
+        getSavedUsername().prompt === null,
+        "Expected inaccessible storage to return an empty saved username"
+      );
+      saveUsername("guest", "Guest");
+      clearSavedUsername();
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(globalThis, "localStorage", descriptor);
+      } else {
+        delete globalThis.localStorage;
+      }
+    }
+  });
+
+  test("storage: username is saved and cleared", () => {
+    const values = new Map();
+    const storage = {
+      getItem(key) {
+        return values.get(key) || null;
+      },
+      setItem(key, value) {
+        values.set(key, value);
+      },
+      removeItem(key) {
+        values.delete(key);
+      },
+    };
+
+    saveUsername("ana", "Ana", storage);
+    const saved = getSavedUsername(storage);
+    assert(saved.prompt === "ana", "Expected prompt username to be saved");
+    assert(saved.display === "Ana", "Expected display username to be saved");
+
+    clearSavedUsername(storage);
+    assert(getSavedUsername(storage).prompt === null, "Expected username to be cleared");
+  });
+
   test("tokenize: command and args", () => {
     const result = tokenize("cat /cv/about");
     assert(result.command === "cat", "Expected command 'cat'");

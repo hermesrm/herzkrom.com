@@ -6,6 +6,7 @@
 import { SessionContext, getCwdPath, resolvePath, resolveCwd } from "./context.js";
 import { executeInput, resolveAlias, tokenize } from "./parser.js";
 import { aliasRegistry } from "./aliases.js";
+import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
 
 // Commands
 import { lsCommand, getDisplayName } from "./commands/ls.js";
@@ -109,8 +110,6 @@ const commandRegistry = [
 
 const USERNAME_MAX_LENGTH = 16;
 const PROMPT_USERNAME_REGEX = /^[a-z0-9]+$/; // Solo minúsculas y dígitos, sin espacios
-const STORAGE_KEY_PROMPT = "herzkrom_username"; // nombre seguro para el prompt (sin espacios, minúsculas)
-const STORAGE_KEY_DISPLAY = "herzkrom_username_display"; // nombre formateado para mensajes
 
 const UI_TEXT = {
   es: {
@@ -176,29 +175,6 @@ function formatDisplayName(name) {
   });
 
   return formatted.join(" ");
-}
-
-/* =============================
-   localStorage helpers
-   ============================= */
-
-function saveUsername(promptName, displayName) {
-  localStorage.setItem(STORAGE_KEY_PROMPT, promptName);
-  localStorage.setItem(STORAGE_KEY_DISPLAY, displayName);
-}
-
-function getSavedUsername() {
-  const promptName = localStorage.getItem(STORAGE_KEY_PROMPT);
-  const displayName = localStorage.getItem(STORAGE_KEY_DISPLAY);
-  return {
-    prompt: promptName || null,
-    display: displayName || null,
-  };
-}
-
-function clearSavedUsername() {
-  localStorage.removeItem(STORAGE_KEY_PROMPT);
-  localStorage.removeItem(STORAGE_KEY_DISPLAY);
 }
 
 /* =============================
