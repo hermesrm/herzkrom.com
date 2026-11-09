@@ -20,13 +20,14 @@ const helpCommand = {
     // help <comando>
     if (args && args.length) {
       if (args.length > 1) {
-          const msg = context.lang === 'es'
+        const msg =
+          context.lang === "es"
             ? "help: demasiados argumentos\nPrueba 'help --help' para más información."
             : "help: too many arguments\nTry 'help --help' for more information.";
-          return {
-            output: msg,
-            code: 1,
-          };
+        return {
+          output: msg,
+          code: 1,
+        };
       }
       const target = args[0];
       const cmd = commandRegistry.find((c) => c.aliases[context.lang]?.includes(target));

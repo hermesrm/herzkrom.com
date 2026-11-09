@@ -15,7 +15,7 @@ const historyCommand = {
   },
 
   execute(context, args) {
-        const lang = context?.lang === "es" ? "es" : "en";
+    const lang = context?.lang === "es" ? "es" : "en";
     if (args.includes("--help")) {
       const helpText =
         lang === "es"
@@ -44,17 +44,19 @@ const historyCommand = {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
         const flag = invalidFlag.replace(/^-+/, "");
-        const msg = lang === 'es'
-          ? `history: opción inválida -- ${flag}\nPrueba 'history --help' para más información.`
-          : `history: invalid option -- ${flag}\nTry 'history --help' for more information.`;
+        const msg =
+          lang === "es"
+            ? `history: opción inválida -- ${flag}\nPrueba 'history --help' para más información.`
+            : `history: invalid option -- ${flag}\nTry 'history --help' for more information.`;
         return {
           output: msg,
           code: 1,
         };
       }
-      const msg = lang === 'es'
-        ? "history: demasiados argumentos\nPrueba 'history --help' para más información."
-        : "history: too many arguments\nTry 'history --help' for more information.";
+      const msg =
+        lang === "es"
+          ? "history: demasiados argumentos\nPrueba 'history --help' para más información."
+          : "history: too many arguments\nTry 'history --help' for more information.";
       return {
         output: msg,
         code: 1,

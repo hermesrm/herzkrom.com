@@ -36,7 +36,6 @@ function executeInput(rawInput, context, commandRegistry) {
     return "";
   }
 
-
   const { command: inputCommand } = tokenize(rawInput);
   const directCommand = commandRegistry.find((c) =>
     c?.aliases?.[context.lang]?.includes(inputCommand)

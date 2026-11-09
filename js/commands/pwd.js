@@ -45,18 +45,20 @@ const pwdCommand = {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
         const flag = invalidFlag.replace(/^-+/, "");
-        const msg = context.lang === 'es'
-          ? `pwd: opción inválida -- ${flag}\nPrueba 'pwd --help' para más información.`
-          : `pwd: invalid option -- ${flag}\nTry 'pwd --help' for more information.`;
+        const msg =
+          context.lang === "es"
+            ? `pwd: opción inválida -- ${flag}\nPrueba 'pwd --help' para más información.`
+            : `pwd: invalid option -- ${flag}\nTry 'pwd --help' for more information.`;
         return {
           output: msg,
           code: 1,
         };
       }
       if (args.length > 0) {
-        const msg = context.lang === 'es'
-          ? "pwd: demasiados argumentos\nPrueba 'pwd --help' para más información."
-          : "pwd: too many arguments\nTry 'pwd --help' for more information.";
+        const msg =
+          context.lang === "es"
+            ? "pwd: demasiados argumentos\nPrueba 'pwd --help' para más información."
+            : "pwd: too many arguments\nTry 'pwd --help' for more information.";
         return {
           output: msg,
           code: 1,

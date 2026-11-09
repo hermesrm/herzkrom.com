@@ -896,8 +896,8 @@ if (!hiddenInputEl) {
         const input = hiddenInputEl.value;
         try {
           const storedCompletions = tabCycleState?.completions;
-          const completions = storedCompletions ||
-            getCompletions(input, SessionContext, commandRegistry);
+          const completions =
+            storedCompletions || getCompletions(input, SessionContext, commandRegistry);
           if (completions.length === 1) {
             setInputValue(applyCompletion(input, completions[0]));
             clearSuggestions();
@@ -909,9 +909,7 @@ if (!hiddenInputEl) {
 
             if (!canCycle) {
               const commonPrefix = getCommonPrefix(completions);
-              const completedInput = commonPrefix
-                ? applyCompletion(input, commonPrefix)
-                : input;
+              const completedInput = commonPrefix ? applyCompletion(input, commonPrefix) : input;
 
               tabCycleState = {
                 baseInput: completedInput,

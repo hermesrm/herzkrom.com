@@ -43,18 +43,20 @@ const clearCommand = {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
         const flag = invalidFlag.replace(/^-+/, "");
-        const msg = context.lang === 'es'
-          ? `clear: opción inválida -- ${flag}\nPrueba 'clear --help' para más información.`
-          : `clear: invalid option -- ${flag}\nTry 'clear --help' for more information.`;
+        const msg =
+          context.lang === "es"
+            ? `clear: opción inválida -- ${flag}\nPrueba 'clear --help' para más información.`
+            : `clear: invalid option -- ${flag}\nTry 'clear --help' for more information.`;
         return {
           output: msg,
           code: 1,
         };
       }
       if (args.length > 0) {
-        const msg = context.lang === 'es'
-          ? "clear: demasiados argumentos\nPrueba 'clear --help' para más información."
-          : "clear: too many arguments\nTry 'clear --help' for more information.";
+        const msg =
+          context.lang === "es"
+            ? "clear: demasiados argumentos\nPrueba 'clear --help' para más información."
+            : "clear: too many arguments\nTry 'clear --help' for more information.";
         return {
           output: msg,
           code: 1,

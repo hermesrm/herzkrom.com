@@ -46,9 +46,10 @@ const cdCommand = {
     const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
     if (invalidFlag) {
       const flag = invalidFlag.replace(/^-+/, "");
-      const msg = context.lang === 'es'
-        ? `cd: opción inválida -- ${flag}\nPrueba 'cd --help' para más información.`
-        : `cd: invalid option -- ${flag}\nTry 'cd --help' for more information.`;
+      const msg =
+        context.lang === "es"
+          ? `cd: opción inválida -- ${flag}\nPrueba 'cd --help' para más información.`
+          : `cd: invalid option -- ${flag}\nTry 'cd --help' for more information.`;
       return {
         output: msg,
         code: 1,
@@ -56,9 +57,10 @@ const cdCommand = {
     }
 
     if (args.length > 1) {
-      const msg = context.lang === 'es'
-        ? "cd: demasiados argumentos\nPrueba 'cd --help' para más información."
-        : "cd: too many arguments\nTry 'cd --help' for more information.";
+      const msg =
+        context.lang === "es"
+          ? "cd: demasiados argumentos\nPrueba 'cd --help' para más información."
+          : "cd: too many arguments\nTry 'cd --help' for more information.";
       return {
         output: msg,
         code: 1,

@@ -92,9 +92,10 @@ const lsCommand = {
     const invalidFlag = args?.find((arg) => arg.startsWith("-") && arg !== "-l");
     if (invalidFlag) {
       const flag = invalidFlag.replace(/^-+/, "");
-      const msg = context.lang === 'es'
-        ? `ls: opción inválida -- ${flag}\nPrueba 'ls --help' para más información.`
-        : `ls: invalid option -- ${flag}\nTry 'ls --help' for more information.`;
+      const msg =
+        context.lang === "es"
+          ? `ls: opción inválida -- ${flag}\nPrueba 'ls --help' para más información.`
+          : `ls: invalid option -- ${flag}\nTry 'ls --help' for more information.`;
       return {
         output: msg,
         code: 1,

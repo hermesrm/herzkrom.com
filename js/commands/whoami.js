@@ -43,18 +43,20 @@ const whoamiCommand = {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
         const flag = invalidFlag.replace(/^-+/, "");
-        const msg = context.lang === 'es'
-          ? `whoami: opción inválida -- ${flag}\nPrueba 'whoami --help' para más información.`
-          : `whoami: invalid option -- ${flag}\nTry 'whoami --help' for more information.`;
+        const msg =
+          context.lang === "es"
+            ? `whoami: opción inválida -- ${flag}\nPrueba 'whoami --help' para más información.`
+            : `whoami: invalid option -- ${flag}\nTry 'whoami --help' for more information.`;
         return {
           output: msg,
           code: 1,
         };
       }
       if (args.length > 0) {
-        const msg = context.lang === 'es'
-          ? "whoami: demasiados argumentos\nPrueba 'whoami --help' para más información."
-          : "whoami: too many arguments\nTry 'whoami --help' for more information.";
+        const msg =
+          context.lang === "es"
+            ? "whoami: demasiados argumentos\nPrueba 'whoami --help' para más información."
+            : "whoami: too many arguments\nTry 'whoami --help' for more information.";
         return {
           output: msg,
           code: 1,

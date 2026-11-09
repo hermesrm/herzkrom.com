@@ -53,9 +53,10 @@ const catCommand = {
     const invalidFlag = args.find((arg) => arg.startsWith("-"));
     if (invalidFlag) {
       const flag = invalidFlag.replace(/^-+/, "");
-      const msg = context.lang === 'es'
-        ? `cat: opción inválida -- ${flag}\nPrueba 'cat --help' para más información.`
-        : `cat: invalid option -- ${flag}\nTry 'cat --help' for more information.`;
+      const msg =
+        context.lang === "es"
+          ? `cat: opción inválida -- ${flag}\nPrueba 'cat --help' para más información.`
+          : `cat: invalid option -- ${flag}\nTry 'cat --help' for more information.`;
       return {
         output: msg,
         code: 1,
@@ -63,9 +64,10 @@ const catCommand = {
     }
 
     if (args.length > 1) {
-      const msg = context.lang === 'es'
-        ? "cat: demasiados argumentos\nPrueba 'cat --help' para más información."
-        : "cat: too many arguments\nTry 'cat --help' for more information.";
+      const msg =
+        context.lang === "es"
+          ? "cat: demasiados argumentos\nPrueba 'cat --help' para más información."
+          : "cat: too many arguments\nTry 'cat --help' for more information.";
       return {
         output: msg,
         code: 1,

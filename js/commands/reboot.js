@@ -45,17 +45,19 @@ const rebootCommand = {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
         const flag = invalidFlag.replace(/^-+/, "");
-        const msg = context.lang === 'es'
-          ? `reboot: opción inválida -- ${flag}\nPrueba 'reboot --help' para más información.`
-          : `reboot: invalid option -- ${flag}\nTry 'reboot --help' for more information.`;
+        const msg =
+          context.lang === "es"
+            ? `reboot: opción inválida -- ${flag}\nPrueba 'reboot --help' para más información.`
+            : `reboot: invalid option -- ${flag}\nTry 'reboot --help' for more information.`;
         return {
           output: msg,
           code: 1,
         };
       }
-      const msg = context.lang === 'es'
-        ? "reboot: demasiados argumentos\nPrueba 'reboot --help' para más información."
-        : "reboot: too many arguments\nTry 'reboot --help' for more information.";
+      const msg =
+        context.lang === "es"
+          ? "reboot: demasiados argumentos\nPrueba 'reboot --help' para más información."
+          : "reboot: too many arguments\nTry 'reboot --help' for more information.";
       return {
         output: msg,
         code: 1,
