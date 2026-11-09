@@ -15,6 +15,7 @@ import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storag
 import { whoamiCommand } from "../js/commands/whoami.js";
 import { updateDocumentLanguage } from "../js/accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
+import { appendCommandHistory } from "../js/output.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -34,6 +35,42 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("output: command history stays within the node limit", () => {
+    const documentRef = {
+      createElement() {
+        return {
+          children: [],
+          appendChild(child) {
+            this.children.push(child);
+          },
+        };
+      },
+    };
+    const output = {
+      childNodes: [],
+      appendChild(node) {
+        this.childNodes.push(node);
+      },
+      removeChild(node) {
+        const index = this.childNodes.indexOf(node);
+        this.childNodes.splice(index, 1);
+      },
+      get firstChild() {
+        return this.childNodes[0];
+      },
+    };
+
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~", "cd cv", 4);
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/cv", "cd skills", 4);
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/cv/skills", "cd ..", 4);
+
+    assert(output.childNodes.length === 4, "Expected output to stay within the configured limit");
+    assert(
+      output.childNodes[3].children[1].textContent === " cd ..",
+      "Expected the latest command to remain visible"
+    );
+  });
+
   test("autocomplete: completes commands, aliases, and translated paths", () => {
     const context = createContext("es");
     const commands = [lsCommand, cdCommand, catCommand];

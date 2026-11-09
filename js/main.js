@@ -9,6 +9,7 @@ import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
 import { updateDocumentLanguage } from "./accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "./autocomplete.js";
+import { trimOutputNodes, appendCommandHistory } from "./output.js";
 
 // Commands
 import { lsCommand } from "./commands/ls.js";
@@ -313,7 +314,7 @@ function printLine(text, cssClass = "") {
   div.textContent = text === "" ? "\u00A0" : text;
   if (cssClass) div.classList.add(cssClass);
   output.appendChild(div);
-  trimOutputNodes();
+  trimOutputNodes(output, MAX_OUTPUT_NODES);
   return div;
 }
 
@@ -323,12 +324,6 @@ function logInputEvent(label, data) {
   printLine(`# ${label}: ${payload}`, "comment");
   console.log(`[debug-input] ${label}:`, data);
   scrollToBottom();
-}
-
-function trimOutputNodes() {
-  while (output.childNodes.length > MAX_OUTPUT_NODES) {
-    output.removeChild(output.firstChild);
-  }
 }
 
 // Renderizado específico para la ayuda en columnas flexibles - animado
@@ -355,7 +350,7 @@ async function renderHelp(helpData) {
       line.appendChild(cmdSpan);
       line.appendChild(descSpan);
       output.appendChild(line);
-      trimOutputNodes();
+      trimOutputNodes(output, MAX_OUTPUT_NODES);
 
       if (isNearBottom(terminal)) {
         terminal.scrollTop = terminal.scrollHeight;
@@ -383,7 +378,7 @@ async function printOutput(text) {
   div.style.whiteSpace = "pre-wrap";
   div.style.wordBreak = "break-word";
   output.appendChild(div);
-  trimOutputNodes();
+  trimOutputNodes(output, MAX_OUTPUT_NODES);
 
   const autoScrollEnabled = isNearBottom(terminal);
 
@@ -400,28 +395,7 @@ function removeLastLine() {
 }
 
 function printCommandHistory(userHost, path, command) {
-  // ES: Renderiza el prompt evitando HTML del usuario. EN: Renders prompt without injecting user HTML.
-  const promptDiv = document.createElement("div");
-  const userSpan = document.createElement("span");
-  userSpan.className = "prompt";
-  userSpan.textContent = userHost;
-  const pathSpan = document.createElement("span");
-  pathSpan.className = "prompt-path";
-  pathSpan.textContent = ` ${path}`;
-  promptDiv.appendChild(userSpan);
-  promptDiv.appendChild(pathSpan);
-  output.appendChild(promptDiv);
-
-  // ES: Comando con símbolo, saneado. EN: Command line with symbol, sanitized.
-  const commandDiv = document.createElement("div");
-  const symbolSpan = document.createElement("span");
-  symbolSpan.className = "prompt-symbol";
-  symbolSpan.textContent = "$";
-  const textSpan = document.createElement("span");
-  textSpan.textContent = ` ${command}`;
-  commandDiv.appendChild(symbolSpan);
-  commandDiv.appendChild(textSpan);
-  output.appendChild(commandDiv);
+  appendCommandHistory(output, document, userHost, path, command, MAX_OUTPUT_NODES);
 }
 
 function buildPrompt() {
