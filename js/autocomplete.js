@@ -20,6 +20,7 @@ function normalizeForMatch(value) {
 }
 
 function getCompletions(input, context, commandRegistry) {
+  const hasTrailingSpace = /\s$/.test(input);
   const trimmed = input.trim();
   const parts = trimmed.split(/\s+/);
 
@@ -28,6 +29,9 @@ function getCompletions(input, context, commandRegistry) {
     const normalizedWord = normalizeForMatch(word);
 
     if (!word) return [];
+    if (hasTrailingSpace && (word === "cd" || word === "cat")) {
+      return getPathCompletions("", context);
+    }
 
     const commandMatches = commandRegistry
       .flatMap((cmd) => cmd.aliases[context.lang] || [])
@@ -55,7 +59,7 @@ function getPathCompletions(pathPrefix, context) {
     let baseDir = "";
 
     if (!pathPrefix) {
-      currentNode = resolvePath(context, "").node || resolveCwd(context);
+      currentNode = resolveCwd(context);
     } else if (pathPrefix.includes("/")) {
       const lastSlash = pathPrefix.lastIndexOf("/");
       baseDir = pathPrefix.slice(0, lastSlash + 1);
@@ -90,8 +94,12 @@ function getPathCompletions(pathPrefix, context) {
 }
 
 function applyCompletion(input, completion) {
+  const hasTrailingSpace = /\s$/.test(input);
   const parts = input.trim().split(/\s+/);
   if (parts.length === 1) {
+    if (hasTrailingSpace && parts[0]) {
+      return `${parts[0]} ${completion}`;
+    }
     return completion;
   }
   parts[parts.length - 1] = completion;

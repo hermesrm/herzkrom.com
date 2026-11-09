@@ -77,11 +77,25 @@ export function runCommandTests(test) {
     const commandMatches = getCompletions("c", context, commands);
     const aliasMatches = getCompletions("ac", context, commands);
     const pathMatches = getCompletions("cd /cv/educacion", context, commands);
+    context.cwd = ["cv"];
+    const currentDirectoryMatches = getCompletions("cd ", context, commands);
 
     assert(commandMatches.includes("cat"), "Expected cat command completion");
     assert(commandMatches.includes("cd"), "Expected cd command completion");
     assert(aliasMatches.includes("acerca"), "Expected Spanish alias completion");
     assert(pathMatches.includes("/cv/educación"), "Expected accent-insensitive path completion");
+    assert(
+      currentDirectoryMatches.includes("acerca"),
+      "Expected cd followed by a space to suggest current directory entries"
+    );
+    assert(
+      !currentDirectoryMatches.includes("cd"),
+      "Expected cd followed by a space not to suggest the command again"
+    );
+    assert(
+      applyCompletion("cd ", "acerca") === "cd acerca",
+      "Expected applying a path completion to preserve cd"
+    );
     assert(
       applyCompletion("cd /cv/educ", "/cv/educación") === "cd /cv/educación",
       "Expected completion to preserve the command"
