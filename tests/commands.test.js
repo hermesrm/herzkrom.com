@@ -300,6 +300,15 @@ export function runCommandTests(test) {
     );
   });
 
+  test("help: --help displays usage in both languages", () => {
+    for (const lang of ["es", "en"]) {
+      const output = helpCommand.execute(createContext(lang), ["--help"], [helpCommand]);
+      const usage = lang === "es" ? "Uso: help" : "Usage: help";
+      assert(output?.code === 0, `Expected ${lang} help to succeed`);
+      assert(output.output.includes(usage), `Expected ${lang} usage in help output`);
+    }
+  });
+
   test("help: returns structured help", () => {
     const context = createContext("en");
     const output = helpCommand.execute(

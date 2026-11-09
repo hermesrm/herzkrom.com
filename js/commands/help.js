@@ -17,6 +17,31 @@ const helpCommand = {
   },
 
   execute(context, args, commandRegistry) {
+    if (args?.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: help [<comando> | --help]",
+              "",
+              "Muestra la ayuda general o la descripción de un comando.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: help [<command> | --help]",
+              "",
+              "Show general help or the description of a command.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
+
     // help <comando>
     if (args && args.length) {
       if (args.length > 1) {
