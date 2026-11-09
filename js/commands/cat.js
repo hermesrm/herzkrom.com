@@ -18,30 +18,30 @@ const catCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: cat <archivo | sección> [opciones]",
-                "",
-                "Muestra el contenido de un archivo o sección.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: cat <file | section> [options]",
-                "",
-                "Display file or section content.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: cat <archivo | sección> [--help]",
+              "",
+              "Muestra el contenido de un archivo o sección.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: cat <file | section> [--help]",
+              "",
+              "Display file or section content.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (!args.length) {
       return {
         es: "Uso: cat <archivo | sección>",

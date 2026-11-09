@@ -15,30 +15,30 @@ const clearCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: clear [opciones]",
-                "",
-                "Limpia la pantalla de la terminal.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: clear [options]",
-                "",
-                "Clear the terminal screen.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: clear [--help]",
+              "",
+              "Limpia la pantalla de la terminal.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: clear [--help]",
+              "",
+              "Clear the terminal screen.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {

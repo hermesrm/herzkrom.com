@@ -17,30 +17,30 @@ const rebootCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: reboot [opciones]",
-                "",
-                "Reinicia la consola simulada.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: reboot [options]",
-                "",
-                "Reboot the simulated console.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: reboot [--help]",
+              "",
+              "Reinicia la consola simulada.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: reboot [--help]",
+              "",
+              "Reboot the simulated console.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {

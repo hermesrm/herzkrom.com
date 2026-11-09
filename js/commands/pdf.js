@@ -15,30 +15,30 @@ const pdfCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: pdf [opciones]",
-                "",
-                "Indica si el currículum en PDF está disponible.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: pdf [options]",
-                "",
-                "Show whether the PDF résumé is available.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: pdf [--help]",
+              "",
+              "Indica si el currículum en PDF está disponible.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: pdf [--help]",
+              "",
+              "Show whether the PDF résumé is available.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {

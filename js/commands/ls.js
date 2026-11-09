@@ -63,39 +63,32 @@ const lsCommand = {
   },
 
   execute(context, args) {
-            // Mostrar ayuda si se solicita --help
-            if (args.includes('--help')) {
-              const helpText = context.lang === 'es'
-                ? [
-                    "Uso: ls [opciones]",
-                    "",
-                    "Lista el contenido del directorio actual.",
-                    "",
-                    "Opciones:",
-                    "  -l    Muestra el formato largo (tipo y nombre)",
-                  ].join("\n")
-                : [
-                    "Usage: ls [options]",
-                    "",
-                    "List directory contents.",
-                    "",
-                    "Options:",
-                    "  -l    Show long format (type and name)",
-                  ].join("\n");
-              return {
-                output: helpText,
-                code: 0,
-              };
-            }
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          return {
-            output: context.lang === 'es'
-              ? "Uso: ls [-l]\nLista el contenido del directorio actual."
-              : "Usage: ls [-l]\nList directory contents.",
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: ls [-l] [--help]",
+              "",
+              "Lista el contenido del directorio actual.",
+              "",
+              "Opciones:",
+              "  -l        Muestra el formato largo (tipo y nombre)",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: ls [-l] [--help]",
+              "",
+              "List directory contents.",
+              "",
+              "Options:",
+              "  -l        Show long format (type and name)",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     const invalidFlag = args?.find((arg) => arg.startsWith("-") && arg !== "-l");
     if (invalidFlag) {
       const flag = invalidFlag.replace(/^-+/, "");

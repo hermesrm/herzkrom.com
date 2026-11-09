@@ -17,30 +17,30 @@ const pwdCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: pwd [opciones]",
-                "",
-                "Muestra la ruta actual.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: pwd [options]",
-                "",
-                "Print working directory.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: pwd [--help]",
+              "",
+              "Muestra la ruta actual.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: pwd [--help]",
+              "",
+              "Print working directory.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {

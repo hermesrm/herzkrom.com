@@ -15,30 +15,30 @@ const whoamiCommand = {
   },
 
   execute(context, args) {
-        // Mostrar ayuda si se solicita --help
-        if (args.includes('--help')) {
-          const helpText = context.lang === 'es'
-            ? [
-                "Uso: whoami [opciones]",
-                "",
-                "Muestra el usuario actual de la sesión.",
-                "",
-                "Opciones:",
-                "  (Por implementar)",
-              ].join("\n")
-            : [
-                "Usage: whoami [options]",
-                "",
-                "Display the current session user.",
-                "",
-                "Options:",
-                "  (To be implemented)",
-              ].join("\n");
-          return {
-            output: helpText,
-            code: 0,
-          };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? [
+              "Uso: whoami [--help]",
+              "",
+              "Muestra el usuario actual de la sesión.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: whoami [--help]",
+              "",
+              "Display the current session user.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {

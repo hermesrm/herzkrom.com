@@ -4,10 +4,15 @@ import { resolveAlias, tokenize, executeInput } from "../js/parser.js";
 import { lsCommand } from "../js/commands/ls.js";
 import { cdCommand } from "../js/commands/cd.js";
 import { catCommand } from "../js/commands/cat.js";
+import { clearCommand } from "../js/commands/clear.js";
 import { helpCommand } from "../js/commands/help.js";
+import { historyCommand } from "../js/commands/history.js";
 import { languageCommand } from "../js/commands/idioma.js";
 import { pdfCommand } from "../js/commands/pdf.js";
+import { pwdCommand } from "../js/commands/pwd.js";
+import { rebootCommand } from "../js/commands/reboot.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
+import { whoamiCommand } from "../js/commands/whoami.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -27,6 +32,34 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("commands: help describes available behavior in both languages", () => {
+    const commands = [
+      lsCommand,
+      cdCommand,
+      catCommand,
+      clearCommand,
+      historyCommand,
+      pdfCommand,
+      pwdCommand,
+      rebootCommand,
+      whoamiCommand,
+    ];
+
+    for (const lang of ["es", "en"]) {
+      for (const command of commands) {
+        const result = command.execute(createContext(lang), ["--help"]);
+        assert(result?.code === 0, `Expected ${command.id} help to succeed in ${lang}`);
+        assert(
+          !/por implementar|to be implemented/i.test(result.output),
+          `Expected ${command.id} help to omit placeholders in ${lang}`
+        );
+      }
+    }
+
+    const lsHelp = lsCommand.execute(createContext("es"), ["--help"]);
+    assert(lsHelp.output.includes("-l"), "Expected ls help to document the -l option");
+  });
+
   test("storage: blocked persistence does not break the session", () => {
     const blockedStorage = {
       getItem() {

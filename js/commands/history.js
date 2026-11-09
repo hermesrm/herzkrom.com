@@ -16,30 +16,30 @@ const historyCommand = {
 
   execute(context, args) {
         const lang = context?.lang === "es" ? "es" : "en";
-        // Mostrar ayuda si se solicita --help
-          if (args.includes('--help')) {
-            const helpText = lang === 'es'
-              ? [
-                  "Uso: history [opciones]",
-                  "",
-                  "Muestra el historial de comandos.",
-                  "",
-                  "Opciones:",
-                  "  (Por implementar)",
-                ].join("\n")
-              : [
-                  "Usage: history [options]",
-                  "",
-                  "Show command history.",
-                  "",
-                  "Options:",
-                  "  (To be implemented)",
-                ].join("\n");
-            return {
-              output: helpText,
-              code: 0,
-            };
-        }
+    if (args.includes("--help")) {
+      const helpText =
+        lang === "es"
+          ? [
+              "Uso: history [--help]",
+              "",
+              "Muestra el historial de comandos.",
+              "",
+              "Opciones:",
+              "  --help    Muestra esta ayuda",
+            ].join("\n")
+          : [
+              "Usage: history [--help]",
+              "",
+              "Show command history.",
+              "",
+              "Options:",
+              "  --help    Show this help",
+            ].join("\n");
+      return {
+        output: helpText,
+        code: 0,
+      };
+    }
     if (args && args.length) {
       const invalidFlag = args.find((arg) => arg && arg.startsWith("-"));
       if (invalidFlag) {
