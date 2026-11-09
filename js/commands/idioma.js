@@ -3,6 +3,8 @@
    Language selection command
    ============================= */
 
+import { updateDocumentLanguage } from "../accessibility.js";
+
 // ES: Idiomas soportados. EN: Supported languages.
 const SUPPORTED_LANGS = ["es", "en"];
 
@@ -109,9 +111,7 @@ const languageCommand = {
     }
 
     context.lang = requested;
-    if (typeof document !== "undefined" && document.documentElement) {
-      document.documentElement.lang = requested;
-    }
+    updateDocumentLanguage(requested);
 
     const newLang = requested === "es" ? "Español (es)" : "English (en)";
 

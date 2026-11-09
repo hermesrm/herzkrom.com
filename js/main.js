@@ -7,6 +7,7 @@ import { SessionContext, getCwdPath, resolvePath, resolveCwd } from "./context.j
 import { executeInput, resolveAlias, tokenize } from "./parser.js";
 import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
+import { updateDocumentLanguage } from "./accessibility.js";
 
 // Commands
 import { lsCommand, getDisplayName } from "./commands/ls.js";
@@ -610,9 +611,7 @@ function detectBrowserLang() {
 }
 
 SessionContext.lang = detectBrowserLang();
-if (document.documentElement) {
-  document.documentElement.lang = SessionContext.lang;
-}
+updateDocumentLanguage(SessionContext.lang);
 
 /* =============================
    Welcome message

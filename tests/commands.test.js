@@ -13,6 +13,7 @@ import { pwdCommand } from "../js/commands/pwd.js";
 import { rebootCommand } from "../js/commands/reboot.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
 import { whoamiCommand } from "../js/commands/whoami.js";
+import { updateDocumentLanguage } from "../js/accessibility.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -32,6 +33,48 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("accessibility: labels follow the active language", () => {
+    const elements = new Map(
+      ["terminal", "hidden-input"].map((id) => [
+        id,
+        {
+          attributes: {},
+          setAttribute(name, value) {
+            this.attributes[name] = value;
+          },
+        },
+      ])
+    );
+    const documentRef = {
+      documentElement: { lang: "" },
+      getElementById(id) {
+        return elements.get(id);
+      },
+    };
+
+    updateDocumentLanguage("en", documentRef);
+    assert(documentRef.documentElement.lang === "en", "Expected document language to be English");
+    assert(
+      elements.get("terminal").attributes["aria-label"] === "Interactive terminal",
+      "Expected terminal label in English"
+    );
+    assert(
+      elements.get("hidden-input").attributes["aria-label"] === "Command input",
+      "Expected input label in English"
+    );
+
+    updateDocumentLanguage("es", documentRef);
+    assert(documentRef.documentElement.lang === "es", "Expected document language to be Spanish");
+    assert(
+      elements.get("terminal").attributes["aria-label"] === "Terminal interactiva",
+      "Expected terminal label in Spanish"
+    );
+    assert(
+      elements.get("hidden-input").attributes["aria-label"] === "Entrada de comandos",
+      "Expected input label in Spanish"
+    );
+  });
+
   test("commands: help describes available behavior in both languages", () => {
     const commands = [
       lsCommand,
