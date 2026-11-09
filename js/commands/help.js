@@ -55,7 +55,7 @@ const helpCommand = {
             educacion: "Formación",
             proyectos: "Proyectos personales",
             contacto: "Información de contacto",
-            pdf: "Ubicación del CV en PDF",
+            pdf: "Disponibilidad del CV en PDF",
           }
         : {
             about: "About me",
@@ -65,7 +65,7 @@ const helpCommand = {
             education: "Education",
             projects: "Personal projects",
             contact: "Contact information",
-            pdf: "PDF CV location",
+            pdf: "PDF résumé availability",
           };
 
     const LINUX_IDS = new Set([

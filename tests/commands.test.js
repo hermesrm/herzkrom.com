@@ -6,6 +6,7 @@ import { cdCommand } from "../js/commands/cd.js";
 import { catCommand } from "../js/commands/cat.js";
 import { helpCommand } from "../js/commands/help.js";
 import { languageCommand } from "../js/commands/idioma.js";
+import { pdfCommand } from "../js/commands/pdf.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -50,6 +51,14 @@ export function runCommandTests(test) {
     assert(context.cwd.join("/") === "cv/education", "Expected cwd to be /cv/education");
   });
 
+  test("cd: current directory reference", () => {
+    const context = createContext("es");
+    context.cwd = ["cv"];
+    const output = cdCommand.execute(context, ["."]);
+    assert(output === "", "Expected cd . to succeed");
+    assert(context.cwd.join("/") === "cv", "Expected cwd to remain /cv");
+  });
+
   test("cat: returns animated content for section", () => {
     const context = createContext("es");
     const output = catCommand.execute(context, ["/cv/skills"]);
@@ -72,5 +81,18 @@ export function runCommandTests(test) {
     const context = createContext("en");
     const output = executeInput("nope", context, [lsCommand]);
     assert(output.includes("Command not found"), "Expected command not found message");
+  });
+
+  test("executeInput: registered command takes precedence over alias", () => {
+    const context = createContext("es");
+    const output = executeInput("pdf", context, [pdfCommand, catCommand]);
+    assert(typeof output === "string", "Expected the pdf command to run directly");
+    assert(output.includes("no está disponible"), "Expected PDF availability status");
+  });
+
+  test("executeInput: feature aliases still resolve", () => {
+    const context = createContext("es");
+    const output = executeInput("acerca", context, [catCommand]);
+    assert(output?.type === "animated", "Expected the about alias to resolve to cat");
   });
 }

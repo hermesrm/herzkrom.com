@@ -10,8 +10,8 @@ const pdfCommand = {
     en: ["pdf"],
   },
   description: {
-    es: "Muestra la ubicación del currículum en PDF",
-    en: "Show the location of the PDF résumé",
+    es: "Indica si el currículum en PDF está disponible",
+    en: "Show whether the PDF résumé is available",
   },
 
   execute(context, args) {
@@ -21,7 +21,7 @@ const pdfCommand = {
             ? [
                 "Uso: pdf [opciones]",
                 "",
-                "Muestra la ubicación del currículum en PDF.",
+                "Indica si el currículum en PDF está disponible.",
                 "",
                 "Opciones:",
                 "  (Por implementar)",
@@ -29,7 +29,7 @@ const pdfCommand = {
             : [
                 "Usage: pdf [options]",
                 "",
-                "Show the location of the PDF résumé.",
+                "Show whether the PDF résumé is available.",
                 "",
                 "Options:",
                 "  (To be implemented)",
@@ -60,18 +60,8 @@ const pdfCommand = {
       };
     }
     return {
-      es: [
-        "Currículum en PDF disponible en:",
-        "/assets/Herzkrom_CV.pdf",
-        "",
-        "Nota: El CV interactivo es la versión principal.",
-      ].join("\n"),
-      en: [
-        "PDF résumé available at:",
-        "/assets/Herzkrom_CV.pdf",
-        "",
-        "Note: The interactive CV is the primary version.",
-      ].join("\n"),
+      es: "El currículum en PDF todavía no está disponible.",
+      en: "The PDF résumé is not available yet.",
     }[context.lang];
   },
 };

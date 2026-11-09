@@ -89,6 +89,10 @@ function resolvePath(context, path) {
   }
 
   for (const part of parts) {
+    if (part === ".") {
+      continue;
+    }
+
     if (part === "..") {
       newCwd.pop();
       node = context.fs;

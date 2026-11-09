@@ -37,13 +37,18 @@ function executeInput(rawInput, context, commandRegistry) {
   }
 
 
-  const resolvedInput = resolveAlias(rawInput, context.lang);
+  const { command: inputCommand } = tokenize(rawInput);
+  const directCommand = commandRegistry.find((c) =>
+    c?.aliases?.[context.lang]?.includes(inputCommand)
+  );
+  const resolvedInput = directCommand ? rawInput : resolveAlias(rawInput, context.lang);
   const { command, args } = tokenize(resolvedInput);
 
   // Pasar el comando original al contexto para validación de alias en idioma.js
   context.inputCmd = command;
 
-  const cmd = commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
+  const cmd =
+    directCommand || commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
 
   if (!cmd) {
     // Si el input tiene más de un token, mostrar el input completo para mayor claridad
