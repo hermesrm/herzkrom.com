@@ -62,13 +62,13 @@ const pdfCommand = {
     return {
       es: [
         "Currículum en PDF disponible en:",
-        "/assets/HermesRM_CV.pdf",
+        "/assets/Herzkrom_CV.pdf",
         "",
         "Nota: El CV interactivo es la versión principal.",
       ].join("\n"),
       en: [
         "PDF résumé available at:",
-        "/assets/HermesRM_CV.pdf",
+        "/assets/Herzkrom_CV.pdf",
         "",
         "Note: The interactive CV is the primary version.",
       ].join("\n"),

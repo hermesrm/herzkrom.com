@@ -109,8 +109,8 @@ const commandRegistry = [
 
 const USERNAME_MAX_LENGTH = 16;
 const PROMPT_USERNAME_REGEX = /^[a-z0-9]+$/; // Solo minúsculas y dígitos, sin espacios
-const STORAGE_KEY_PROMPT = "hermesrm_username"; // nombre seguro para el prompt (sin espacios, minúsculas)
-const STORAGE_KEY_DISPLAY = "hermesrm_username_display"; // nombre formateado para mensajes
+const STORAGE_KEY_PROMPT = "herzkrom_username"; // nombre seguro para el prompt (sin espacios, minúsculas)
+const STORAGE_KEY_DISPLAY = "herzkrom_username_display"; // nombre formateado para mensajes
 
 const UI_TEXT = {
   es: {
@@ -118,7 +118,7 @@ const UI_TEXT = {
     continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
     answerLabel: "Respuesta",
     welcomeLines: [
-      "¡Bienvenido/a a hermesrm.com!",
+      "¡Bienvenido/a a herzkrom.com!",
       "",
       "Perfil interactivo en modo CLI (Command‑Line Interface)",
       "",
@@ -140,7 +140,7 @@ const UI_TEXT = {
     continueQuestion: "Do you want to continue with this username? (y/n)",
     answerLabel: "Answer",
     welcomeLines: [
-      "Welcome to hermesrm.com!",
+      "Welcome to herzkrom.com!",
       "",
       "Interactive CLI‑Mode Profile (Command‑Line Interface)",
       "",
@@ -581,7 +581,7 @@ function printCommandHistory(userHost, path, command) {
 
 function buildPrompt() {
   const user = SessionContext.visitor.name || "guest";
-  const host = "hermesrm.com";
+  const host = "herzkrom.com";
   const path = getCwdPath(SessionContext);
 
   // Reemplazar la ruta de inicio con ~ y mantenerlo en rutas anidadas

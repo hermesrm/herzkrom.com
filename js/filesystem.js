@@ -189,8 +189,8 @@ My value proposition is based on:
               name: "content",
               content: {
                 /*
-                es: `Currículum en PDF disponible en: /assets/HermesRM_CV.pdf`,
-                en: `PDF résumé available at: /assets/HermesRM_CV.pdf`
+                es: `Currículum en PDF disponible en: /assets/Herzkrom_CV.pdf`,
+                en: `PDF résumé available at: /assets/Herzkrom_CV.pdf`
                 */
                 es: `Estado: módulo en construcción.`,
                 en: `Status: module under construction.`,
