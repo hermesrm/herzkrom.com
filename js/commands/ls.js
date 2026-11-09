@@ -112,7 +112,7 @@ const lsCommand = {
     }
 
     const hasLongFlag = args && args.includes("-l");
-    const items = Object.entries(node.children);
+    const items = Object.entries(node.children).filter(([name]) => name !== "content");
 
     if (!hasLongFlag) {
       // Formato simple - mostrar nombres traducidos

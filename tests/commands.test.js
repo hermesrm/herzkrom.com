@@ -261,6 +261,19 @@ export function runCommandTests(test) {
     assert(output.includes("cv"), "Expected 'cv' in ls output");
   });
 
+  test("ls: hides internal content nodes but cat can still read the section", () => {
+    const context = createContext("es");
+    context.cwd = ["cv", "about"];
+
+    const shortListing = lsCommand.execute(context, []);
+    const longListing = lsCommand.execute(context, ["-l"]);
+    const section = catCommand.execute(context, ["."]);
+
+    assert(!shortListing.includes("content"), "Expected short listing to hide content node");
+    assert(!longListing.includes("content"), "Expected long listing to hide content node");
+    assert(section?.type === "animated", "Expected cat to keep reading the current section");
+  });
+
   test("cd: supports translated path segments", () => {
     const context = createContext("es");
     const output = cdCommand.execute(context, ["/cv/educación"]);
