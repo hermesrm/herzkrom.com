@@ -14,6 +14,7 @@ import { rebootCommand } from "../js/commands/reboot.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
 import { whoamiCommand } from "../js/commands/whoami.js";
 import { updateDocumentLanguage } from "../js/accessibility.js";
+import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -33,6 +34,24 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("autocomplete: completes commands, aliases, and translated paths", () => {
+    const context = createContext("es");
+    const commands = [lsCommand, cdCommand, catCommand];
+    const commandMatches = getCompletions("c", context, commands);
+    const aliasMatches = getCompletions("ac", context, commands);
+    const pathMatches = getCompletions("cd /cv/educacion", context, commands);
+
+    assert(commandMatches.includes("cat"), "Expected cat command completion");
+    assert(commandMatches.includes("cd"), "Expected cd command completion");
+    assert(aliasMatches.includes("acerca"), "Expected Spanish alias completion");
+    assert(pathMatches.includes("/cv/educación"), "Expected accent-insensitive path completion");
+    assert(
+      applyCompletion("cd /cv/educ", "/cv/educación") === "cd /cv/educación",
+      "Expected completion to preserve the command"
+    );
+    assert(getCommonPrefix(["cat", "clear"]) === "c", "Expected common prefix");
+  });
+
   test("accessibility: labels follow the active language", () => {
     const elements = new Map(
       ["terminal", "hidden-input"].map((id) => [

@@ -3,14 +3,15 @@
    Application entry point
    ============================= */
 
-import { SessionContext, getCwdPath, resolvePath, resolveCwd } from "./context.js";
+import { SessionContext, getCwdPath } from "./context.js";
 import { executeInput, resolveAlias, tokenize } from "./parser.js";
 import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
 import { updateDocumentLanguage } from "./accessibility.js";
+import { getCompletions, applyCompletion, getCommonPrefix } from "./autocomplete.js";
 
 // Commands
-import { lsCommand, getDisplayName } from "./commands/ls.js";
+import { lsCommand } from "./commands/ls.js";
 import { cdCommand } from "./commands/cd.js";
 import { catCommand } from "./commands/cat.js";
 import { helpCommand } from "./commands/help.js";
@@ -176,139 +177,6 @@ function formatDisplayName(name) {
   });
 
   return formatted.join(" ");
-}
-
-/* =============================
-   Autocompletion helpers
-   ============================= */
-
-function filterAliasesByLanguage(word, lang) {
-  const current = aliasRegistry[lang] || {};
-  const other = aliasRegistry[lang === "es" ? "en" : "es"] || {};
-  const normalizedWord = normalizeForMatch(word);
-
-  // Solo sugerir alias propios del idioma actual (evita los que existen en ambos)
-  return Object.keys(current)
-    .filter((alias) => normalizeForMatch(alias).startsWith(normalizedWord))
-    .filter((alias) => !(alias in other));
-}
-
-function normalizeForMatch(value) {
-  return (value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function getCompletions(input, context, commandRegistry) {
-  const trimmed = input.trim();
-  const parts = trimmed.split(/\s+/);
-
-  // Si solo hay una palabra, podría ser comando o alias
-  if (parts.length === 1) {
-    const word = parts[0].toLowerCase();
-    const normalizedWord = normalizeForMatch(word);
-
-    if (!word) return [];
-
-    // Buscar comandos que coincidan con el idioma actual
-    const commandMatches = commandRegistry
-      .flatMap((cmd) => cmd.aliases[context.lang] || [])
-      .filter((alias) => normalizeForMatch(alias).startsWith(normalizedWord));
-
-    // Alias solo del idioma activo (excluye los que también existen en el otro idioma)
-    const aliasMatches = filterAliasesByLanguage(word, context.lang);
-
-    return [...commandMatches, ...aliasMatches];
-  }
-
-  // Si tiene espacios, es "comando argumento"
-  if (parts.length > 1) {
-    const command = parts[0].toLowerCase();
-    const lastPart = parts[parts.length - 1];
-
-    // Para cd y cat, autocomplatar rutas
-    if ((command === "cd" || command === "cat") && lastPart) {
-      return getPathCompletions(lastPart, context);
-    }
-  }
-
-  return [];
-}
-
-function getPathCompletions(pathPrefix, context) {
-  try {
-    // Si es una ruta vacía o relativa corta, buscar en directorio actual
-    let currentNode = null;
-    let baseDir = "";
-
-    if (!pathPrefix || pathPrefix === "") {
-      // Directorio actual
-      currentNode = resolvePath(context, "").node || resolveCwd(context);
-      baseDir = "";
-    } else if (pathPrefix.includes("/")) {
-      // Ruta con /
-      const lastSlash = pathPrefix.lastIndexOf("/");
-      baseDir = pathPrefix.slice(0, lastSlash + 1);
-      const searchTerm = pathPrefix.slice(lastSlash + 1);
-
-      const dirResult = resolvePath(context, baseDir);
-      if (!dirResult) return [];
-
-      currentNode = dirResult.node;
-      pathPrefix = searchTerm;
-    } else {
-      // Ruta relativa corta como "c"
-      currentNode = resolveCwd(context);
-      baseDir = "";
-    }
-
-    if (!currentNode || currentNode.type !== "dir") {
-      return [];
-    }
-
-    const normalizedPrefix = normalizeForMatch(pathPrefix);
-    const items = Object.keys(currentNode.children || {});
-    // Traducir nombres y filtrar por lo que el usuario escribió
-    const displayItems = items.map((name) => ({
-      raw: name,
-      display: getDisplayName(name, context.lang),
-    }));
-
-    const matches = displayItems.filter((item) =>
-      normalizeForMatch(item.display).startsWith(normalizedPrefix)
-    );
-
-    // Devolver nombres traducidos para mostrar
-    return matches.map((item) => baseDir + item.display);
-  } catch (err) {
-    console.error("Error en getPathCompletions:", err);
-    return [];
-  }
-}
-
-function applyCompletion(input, completion) {
-  const parts = input.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return completion;
-  }
-  parts[parts.length - 1] = completion;
-  return parts.join(" ");
-}
-
-function getCommonPrefix(items) {
-  if (!items.length) return "";
-  let prefix = items[0];
-  for (let i = 1; i < items.length; i++) {
-    const item = items[i];
-    let j = 0;
-    while (j < prefix.length && j < item.length && prefix[j] === item[j]) {
-      j++;
-    }
-    prefix = prefix.slice(0, j);
-    if (!prefix) break;
-  }
-  return prefix;
 }
 
 function showSuggestions(completions) {
