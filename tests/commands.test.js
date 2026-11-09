@@ -16,6 +16,7 @@ import { whoamiCommand } from "../js/commands/whoami.js";
 import { updateDocumentLanguage } from "../js/accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
 import { appendCommandHistory } from "../js/output.js";
+import { isInputDebugEnabled } from "../js/debug.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -35,6 +36,25 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("debug input: enabled only on localhost", () => {
+    assert(
+      isInputDebugEnabled({ hostname: "localhost", hash: "", search: "?debug-input" }),
+      "Expected debug input to be available on localhost"
+    );
+    assert(
+      isInputDebugEnabled({ hostname: "127.0.0.1", hash: "#debug-input", search: "" }),
+      "Expected debug input to be available on IPv4 loopback"
+    );
+    assert(
+      !isInputDebugEnabled({ hostname: "herzkrom.com", hash: "#debug-input", search: "" }),
+      "Expected debug input to be disabled on the public domain"
+    );
+    assert(
+      !isInputDebugEnabled({ hostname: "localhost", hash: "", search: "" }),
+      "Expected debug input to require an explicit flag"
+    );
+  });
+
   test("output: command history stays within the node limit", () => {
     const documentRef = {
       createElement() {

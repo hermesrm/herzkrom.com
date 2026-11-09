@@ -71,6 +71,7 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 - `autocomplete.js` calcula las sugerencias. `main.js` gestiona Tab y el ciclo entre ellas.
 - La interfaz inserta texto con `textContent` y limita la salida a 600 nodos y el historial a 200 comandos.
 - `output.js` dibuja el prompt y aplica el límite de salida.
+- En `localhost`, puedes añadir `?debug-input` para ver eventos de teclado en la salida y en la consola. Las trazas incluyen el texto escrito; no lo uses al introducir datos reales. Esta opción no se activa en el dominio público.
 
 ### Desarrollo y pruebas
 
@@ -157,6 +158,7 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 - `autocomplete.js` calculates suggestions. `main.js` handles Tab and cycles through them.
 - The UI inserts text with `textContent` and caps output at 600 nodes and history at 200 commands.
 - `output.js` renders the prompt and enforces the output limit.
+- On `localhost`, add `?debug-input` to log keyboard events to the output and browser console. The logs include typed text, so do not use it with real data. This option is disabled on the public domain.
 
 ### Development and tests
 

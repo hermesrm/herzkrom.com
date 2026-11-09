@@ -10,6 +10,7 @@ import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js
 import { updateDocumentLanguage } from "./accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "./autocomplete.js";
 import { trimOutputNodes, appendCommandHistory } from "./output.js";
+import { isInputDebugEnabled } from "./debug.js";
 
 // Commands
 import { lsCommand } from "./commands/ls.js";
@@ -44,8 +45,7 @@ const MAX_HISTORY = 200;
 const MAX_OUTPUT_NODES = 600;
 const isLikelyMobileUa = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const desktopKeyHandlingEnabled = !isLikelyMobileUa;
-const debugInput =
-  window.location.hash.includes("debug-input") || window.location.search.includes("debug-input");
+const debugInput = isInputDebugEnabled(window.location);
 
 if (document.body) {
   document.body.classList.toggle("desktop-input", desktopKeyHandlingEnabled);
