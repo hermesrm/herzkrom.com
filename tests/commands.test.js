@@ -269,6 +269,23 @@ export function runCommandTests(test) {
     assert(output.text.includes("Microsoft 365"), "Expected skills content");
   });
 
+  test("cat: resolves dot segments in relative paths", () => {
+    const context = createContext("es");
+    context.cwd = ["cv"];
+
+    const currentDirectoryOutput = catCommand.execute(context, ["./about"]);
+    const parentDirectoryOutput = catCommand.execute(context, ["../cv/about"]);
+
+    assert(
+      currentDirectoryOutput?.type === "animated",
+      "Expected ./about to resolve from the current directory"
+    );
+    assert(
+      parentDirectoryOutput?.type === "animated",
+      "Expected ../cv/about to resolve from the parent directory"
+    );
+  });
+
   test("help: returns structured help", () => {
     const context = createContext("en");
     const output = helpCommand.execute(

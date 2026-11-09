@@ -125,25 +125,38 @@ function resolveNode(context, path) {
   if (!context || !context.fs || typeof path !== "string") {
     return null;
   }
-  let parts;
-  let node;
 
-  if (path.startsWith("/")) {
-    parts = path.split("/").filter(Boolean);
-    node = context.fs;
-  } else {
-    parts = path.split("/").filter(Boolean);
-    node = resolveCwd(context);
+  const nodeStack = [context.fs];
+  if (!path.startsWith("/")) {
+    for (const dir of context.cwd) {
+      const currentNode = nodeStack[nodeStack.length - 1];
+      const child = currentNode?.children?.[dir];
+      if (!child || child.type !== "dir") return null;
+      nodeStack.push(child);
+    }
   }
 
+  const parts = path.split("/").filter(Boolean);
   for (const part of parts) {
-    if (!node?.children || !node.children[part]) {
+    const currentNode = nodeStack[nodeStack.length - 1];
+
+    if (part === ".") {
+      continue;
+    }
+
+    if (part === "..") {
+      if (currentNode.type !== "dir") return null;
+      if (nodeStack.length > 1) nodeStack.pop();
+      continue;
+    }
+
+    if (currentNode.type !== "dir" || !currentNode.children?.[part]) {
       return null;
     }
-    node = node.children[part];
+    nodeStack.push(currentNode.children[part]);
   }
 
-  return node;
+  return nodeStack[nodeStack.length - 1];
 }
 
 export { SessionContext, resolveCwd, getCwdPath, resolvePath, resolveNode };
