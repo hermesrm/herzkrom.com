@@ -193,6 +193,18 @@ export function runCommandTests(test) {
     assert(lsHelp.output.includes("-l"), "Expected ls help to document the -l option");
   });
 
+  test("whoami: localizes the guest user and preserves custom usernames", () => {
+    const spanishContext = createContext("es");
+    assert(whoamiCommand.execute(spanishContext, []) === "Invitado", "Expected Spanish guest name");
+    spanishContext.visitor.name = "guest";
+    assert(whoamiCommand.execute(spanishContext, []) === "Invitado", "Expected Spanish guest id to be localized");
+    spanishContext.visitor.name = "ana";
+    assert(whoamiCommand.execute(spanishContext, []) === "ana", "Expected custom username to remain unchanged");
+
+    const englishContext = createContext("en");
+    assert(whoamiCommand.execute(englishContext, []) === "Guest", "Expected English guest name");
+  });
+
   test("storage: blocked persistence does not break the session", () => {
     const blockedStorage = {
       getItem() {

@@ -116,6 +116,7 @@ const PROMPT_USERNAME_REGEX = /^[a-z0-9]+$/; // Solo minúsculas y dígitos, sin
 
 const UI_TEXT = {
   es: {
+    guest: "Invitado",
     welcomeBack: (name) => `¡Bienvenido/a de vuelta, ${name}!`,
     continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
     answerLabel: "Respuesta",
@@ -138,6 +139,7 @@ const UI_TEXT = {
     welcome: (name) => `¡Bienvenido/a, ${name}!`,
   },
   en: {
+    guest: "Guest",
     welcomeBack: (name) => `Welcome back, ${name}!`,
     continueQuestion: "Do you want to continue with this username? (y/n)",
     answerLabel: "Answer",
@@ -399,7 +401,8 @@ function printCommandHistory(userHost, path, command) {
 }
 
 function buildPrompt() {
-  const user = SessionContext.visitor.name || "guest";
+  const visitorName = SessionContext.visitor.name;
+  const user = visitorName && visitorName !== "guest" ? visitorName : t("guest");
   const host = "herzkrom.com";
   const path = getCwdPath(SessionContext);
 
@@ -471,7 +474,8 @@ function showWelcome() {
     SessionContext.visitor.name = saved.prompt; // Prompt seguro: minúsculas, sin espacios
     savedUsernameMode = true;
 
-    const displayName = saved.display || formatDisplayName(saved.prompt);
+    const displayName =
+      saved.prompt === "guest" ? t("guest") : saved.display || formatDisplayName(saved.prompt);
 
     printLine(t("welcomeBack", displayName));
     printLine("");
@@ -562,7 +566,8 @@ async function handleEnter() {
       }
     }
 
-    const displayName = formatDisplayName(displaySource || promptName);
+    const displayName =
+      promptName === "guest" ? t("guest") : formatDisplayName(displaySource || promptName);
 
     SessionContext.visitor.name = promptName;
     saveUsername(promptName, displayName); // Guardar en localStorage

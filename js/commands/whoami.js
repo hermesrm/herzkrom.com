@@ -63,7 +63,11 @@ const whoamiCommand = {
         };
       }
     }
-    return context.visitor.name || "guest";
+    const visitorName = context.visitor.name;
+    if (!visitorName || visitorName === "guest") {
+      return context.lang === "es" ? "Invitado" : "Guest";
+    }
+    return visitorName;
   },
 };
 
