@@ -17,6 +17,7 @@ import { updateDocumentLanguage } from "../js/accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
 import { appendCommandHistory } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
+import { calcCommand } from "../js/commands/calc.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -176,6 +177,7 @@ export function runCommandTests(test) {
       pwdCommand,
       rebootCommand,
       whoamiCommand,
+      calcCommand,
     ];
 
     for (const lang of ["es", "en"]) {
@@ -359,10 +361,39 @@ export function runCommandTests(test) {
     const output = helpCommand.execute(
       context,
       [],
-      [lsCommand, cdCommand, catCommand, helpCommand, languageCommand]
+      [lsCommand, cdCommand, catCommand, helpCommand, languageCommand, calcCommand]
     );
     assert(output && output.type === "help", "Expected help object");
     assert(Array.isArray(output.primary), "Expected primary list");
+    assert(output.primary.some((item) => item.cmd === "calc"), "Expected calc in primary help");
+  });
+
+  test("calculator: evaluates expressions through command and bare input", () => {
+    const context = createContext("es");
+    const registry = [calcCommand];
+
+    assert(executeInput("2 + 2", context, registry) === "4", "Expected bare expression to calculate");
+    assert(
+      executeInput("(2 + 3) * 4", context, registry) === "20",
+      "Expected parentheses and precedence to be applied"
+    );
+    assert(executeInput("sqrt(81)", context, registry) === "9", "Expected square root function");
+    assert(executeInput("sin(pi / 2)", context, registry) === "1", "Expected trig function and constant");
+    assert(executeInput("max(2, 5, 3)", context, registry) === "5", "Expected multi-argument function");
+    assert(executeInput("5!", context, registry) === "120", "Expected factorial operator");
+    assert(executeInput("2^3^2", context, registry) === "512", "Expected right-associative power");
+    assert(executeInput("-pi", context, registry) === "-3.14159265359", "Expected signed constant");
+    assert(executeInput("calcular 2 + 2", context, registry) === "4", "Expected Spanish calc alias");
+    assert(
+      executeInput("calc 1 / 0", context, registry) === "No se puede dividir entre cero.",
+      "Expected division by zero to return a localized error"
+    );
+    assert(
+      executeInput("2 +", context, registry).includes("Expresión matemática inválida"),
+      "Expected malformed math input to return a calculator error"
+    );
+    const help = executeInput("calc --help", context, registry);
+    assert(help?.code === 0 && help.output.includes("2 + 2"), "Expected calculator help");
   });
 
   test("executeInput: unknown command", () => {

@@ -4,6 +4,12 @@
    ============================= */
 
 import { aliasRegistry } from "./aliases.js";
+import {
+  evaluateExpression,
+  formatExpressionResult,
+  getCalculatorErrorMessage,
+  isMathExpressionCandidate,
+} from "./calculator.js";
 
 /*
   ES: Resuelve alias simples antes de procesar; aplica solo si el input completo coincide.
@@ -50,6 +56,14 @@ function executeInput(rawInput, context, commandRegistry) {
     directCommand || commandRegistry.find((c) => c?.aliases?.[context.lang]?.includes(command));
 
   if (!cmd) {
+    if (isMathExpressionCandidate(rawInput)) {
+      try {
+        return formatExpressionResult(evaluateExpression(rawInput));
+      } catch (error) {
+        return getCalculatorErrorMessage(error, context.lang);
+      }
+    }
+
     // Si el input tiene más de un token, mostrar el input completo para mayor claridad
     const inputShown = rawInput.trim();
     return {

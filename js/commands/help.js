@@ -107,16 +107,23 @@ const helpCommand = {
       "REBOOT",
     ]);
     const native = commandRegistry.filter((c) => LINUX_IDS.has(c.id));
+    const additionalCommands = commandRegistry.filter((c) => c.id === "CALC");
 
     return {
       type: "help",
       lang,
       primaryTitle: lang === "es" ? "Comandos principales:" : "Primary commands:",
       systemTitle: lang === "es" ? "Comandos del sistema (Linux):" : "System commands (Linux):",
-      primary: aliases.map((name) => ({
-        cmd: name,
-        desc: aliasDescriptions[name] || (lang === "es" ? "Comando principal" : "Primary command"),
-      })),
+      primary: [
+        ...aliases.map((name) => ({
+          cmd: name,
+          desc: aliasDescriptions[name] || (lang === "es" ? "Comando principal" : "Primary command"),
+        })),
+        ...additionalCommands.map((cmd) => ({
+          cmd: cmd.aliases[lang][0],
+          desc: cmd.description[lang],
+        })),
+      ],
       system: native.map((cmd) => ({
         cmd: cmd.aliases[lang][0],
         desc: cmd.description[lang],

@@ -25,6 +25,7 @@ import { pwdCommand } from "./commands/pwd.js";
 import { clearCommand } from "./commands/clear.js";
 import { echoCommand } from "./commands/echo.js";
 import { rebootCommand } from "./commands/reboot.js";
+import { calcCommand } from "./commands/calc.js";
 
 /* =============================
    DOM references
@@ -105,6 +106,7 @@ const commandRegistry = [
   clearCommand,
   echoCommand,
   rebootCommand,
+  calcCommand,
 ];
 
 /* =============================
