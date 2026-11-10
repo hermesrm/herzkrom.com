@@ -8,16 +8,16 @@ import { clearCommand } from "../js/commands/clear.js";
 import { helpCommand } from "../js/commands/help.js";
 import { historyCommand } from "../js/commands/history.js";
 import { languageCommand } from "../js/commands/idioma.js";
-import { pdfCommand } from "../js/commands/pdf.js";
 import { pwdCommand } from "../js/commands/pwd.js";
 import { rebootCommand } from "../js/commands/reboot.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
 import { whoamiCommand } from "../js/commands/whoami.js";
 import { updateDocumentLanguage } from "../js/accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
-import { appendCommandHistory } from "../js/output.js";
+import { appendCommandHistory, appendTextWithSafeLinks } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
 import { calcCommand } from "../js/commands/calc.js";
+import { openLinkCommand } from "../js/commands/open.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -81,9 +81,9 @@ export function runCommandTests(test) {
       },
     };
 
-    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~", "cd cv", 4);
-    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/cv", "cd skills", 4);
-    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/cv/skills", "cd ..", 4);
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~", "cd profile", 4);
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/profile", "cd contact", 4);
+    appendCommandHistory(output, documentRef, "guest@herzkrom.com", "~/profile/contact", "cd ..", 4);
 
     assert(output.childNodes.length === 4, "Expected output to stay within the configured limit");
     assert(
@@ -92,22 +92,57 @@ export function runCommandTests(test) {
     );
   });
 
+  test("output: only approved profile URLs become clickable links", () => {
+    const documentRef = {
+      createTextNode(text) {
+        return { kind: "text", textContent: text };
+      },
+      createElement(tag) {
+        return { kind: tag };
+      },
+    };
+    const container = {
+      children: [],
+      appendChild(node) {
+        this.children.push(node);
+      },
+    };
+
+    appendTextWithSafeLinks(
+      container,
+      "[GitHub](https://github.com/hermesrm) [Email](mailto:contacto@herzkrom.com) [untrusted](javascript:alert(1))",
+      documentRef
+    );
+
+    const links = container.children.filter((child) => child.kind === "a");
+    assert(links.length === 2, "Expected only approved profile and email links to be clickable");
+    assert(links[0].href === "https://github.com/hermesrm", "Expected approved GitHub URL");
+    assert(links[0].target === "_blank", "Expected links to open in a new tab");
+    assert(links[0].rel === "noopener noreferrer", "Expected safe external link attributes");
+    assert(links[1].href === "mailto:contacto@herzkrom.com", "Expected approved email link");
+    assert(!links[1].target, "Expected email links to use the mail handler directly");
+    assert(
+      container.children.some((child) => child.textContent.includes("javascript:alert(1)")),
+      "Expected untrusted destination to remain plain text"
+    );
+  });
+
   test("autocomplete: completes commands, aliases, and translated paths", () => {
     const context = createContext("es");
     const commands = [lsCommand, cdCommand, catCommand];
     const commandMatches = getCompletions("c", context, commands);
     const aliasMatches = getCompletions("ac", context, commands);
-    const pathMatches = getCompletions("cd /cv/educacion", context, commands);
-    context.cwd = ["cv"];
+    const pathMatches = getCompletions("cd /per", context, commands);
+    context.cwd = [];
     const currentDirectoryMatches = getCompletions("cd ", context, commands);
 
     assert(commandMatches.includes("cat"), "Expected cat command completion");
     assert(commandMatches.includes("cd"), "Expected cd command completion");
     assert(aliasMatches.includes("acerca"), "Expected Spanish alias completion");
-    assert(pathMatches.includes("/cv/educación"), "Expected accent-insensitive path completion");
+    assert(pathMatches.includes("/perfil"), "Expected translated profile path completion");
     assert(
-      currentDirectoryMatches.includes("acerca"),
-      "Expected cd followed by a space to suggest current directory entries"
+      currentDirectoryMatches.includes("perfil"),
+      "Expected cd followed by a space to suggest root profile entry"
     );
     assert(
       !currentDirectoryMatches.includes("cd"),
@@ -118,7 +153,7 @@ export function runCommandTests(test) {
       "Expected applying a path completion to preserve cd"
     );
     assert(
-      applyCompletion("cd /cv/educ", "/cv/educación") === "cd /cv/educación",
+      applyCompletion("cd /per", "/perfil") === "cd /perfil",
       "Expected completion to preserve the command"
     );
     assert(getCommonPrefix(["cat", "clear"]) === "c", "Expected common prefix");
@@ -173,11 +208,11 @@ export function runCommandTests(test) {
       catCommand,
       clearCommand,
       historyCommand,
-      pdfCommand,
       pwdCommand,
       rebootCommand,
       whoamiCommand,
       calcCommand,
+      openLinkCommand,
     ];
 
     for (const lang of ["es", "en"]) {
@@ -278,26 +313,30 @@ export function runCommandTests(test) {
   });
 
   test("tokenize: command and args", () => {
-    const result = tokenize("cat /cv/about");
+    const result = tokenize("cat /profile");
     assert(result.command === "cat", "Expected command 'cat'");
     assert(result.args.length === 1, "Expected one arg");
-    assert(result.args[0] === "/cv/about", "Expected /cv/about");
+    assert(result.args[0] === "/profile", "Expected /profile");
   });
 
   test("resolveAlias: Spanish alias", () => {
     const result = resolveAlias("acerca", "es");
     assert(result === aliasRegistry.es.acerca, "Expected alias expansion");
+    assert(resolveAlias("perfil", "es") === "cat /profile", "Expected Spanish profile shortcut");
+    assert(resolveAlias("profile", "en") === "cat /profile", "Expected English profile shortcut");
   });
 
-  test("ls: root lists cv", () => {
+  test("ls: root lists profile and contact", () => {
     const context = createContext("es");
     const output = lsCommand.execute(context, []);
-    assert(output.includes("cv"), "Expected 'cv' in ls output");
+    assert(output.includes("perfil"), "Expected profile in ls output");
+    assert(output.includes("contacto"), "Expected contact in ls output");
+    assert(!output.includes("cv"), "Expected the CV directory to be removed");
   });
 
   test("ls: hides internal content nodes but cat can still read the section", () => {
     const context = createContext("es");
-    context.cwd = ["cv", "about"];
+    context.cwd = ["profile"];
 
     const shortListing = lsCommand.execute(context, []);
     const longListing = lsCommand.execute(context, ["-l"]);
@@ -310,40 +349,40 @@ export function runCommandTests(test) {
 
   test("cd: supports translated path segments", () => {
     const context = createContext("es");
-    const output = cdCommand.execute(context, ["/cv/educación"]);
+    const output = cdCommand.execute(context, ["/contacto"]);
     assert(output === "", "Expected cd to succeed");
-    assert(context.cwd.join("/") === "cv/education", "Expected cwd to be /cv/education");
+    assert(context.cwd.join("/") === "contact", "Expected cwd to be /contact");
   });
 
   test("cd: current directory reference", () => {
     const context = createContext("es");
-    context.cwd = ["cv"];
+    context.cwd = ["profile"];
     const output = cdCommand.execute(context, ["."]);
     assert(output === "", "Expected cd . to succeed");
-    assert(context.cwd.join("/") === "cv", "Expected cwd to remain /cv");
+    assert(context.cwd.join("/") === "profile", "Expected cwd to remain /profile");
   });
 
   test("cat: returns animated content for section", () => {
     const context = createContext("es");
-    const output = catCommand.execute(context, ["/cv/skills"]);
+    const output = catCommand.execute(context, ["/profile"]);
     assert(output && output.type === "animated", "Expected animated output");
-    assert(output.text.includes("Microsoft 365"), "Expected skills content");
+    assert(output.text.includes("Microsoft 365"), "Expected profile summary");
   });
 
   test("cat: resolves dot segments in relative paths", () => {
     const context = createContext("es");
-    context.cwd = ["cv"];
+    context.cwd = ["contact"];
 
-    const currentDirectoryOutput = catCommand.execute(context, ["./about"]);
-    const parentDirectoryOutput = catCommand.execute(context, ["../cv/about"]);
+    const currentDirectoryOutput = catCommand.execute(context, ["./content"]);
+    const parentDirectoryOutput = catCommand.execute(context, ["../profile"]);
 
     assert(
       currentDirectoryOutput?.type === "animated",
-      "Expected ./about to resolve from the current directory"
+      "Expected ./content to resolve from the current directory"
     );
     assert(
       parentDirectoryOutput?.type === "animated",
-      "Expected ../cv/about to resolve from the parent directory"
+      "Expected ../profile to resolve from the parent directory"
     );
   });
 
@@ -361,11 +400,42 @@ export function runCommandTests(test) {
     const output = helpCommand.execute(
       context,
       [],
-      [lsCommand, cdCommand, catCommand, helpCommand, languageCommand, calcCommand]
+      [lsCommand, cdCommand, catCommand, helpCommand, languageCommand, calcCommand, openLinkCommand]
     );
     assert(output && output.type === "help", "Expected help object");
     assert(Array.isArray(output.primary), "Expected primary list");
     assert(output.primary.some((item) => item.cmd === "calc"), "Expected calc in primary help");
+    assert(output.primary.some((item) => item.cmd === "github"), "Expected GitHub shortcut in help");
+    assert(output.primary.some((item) => item.cmd === "linkedin"), "Expected LinkedIn shortcut in help");
+  });
+
+  test("contact and profile commands: expose the requested links", () => {
+    const profile = catCommand.execute(createContext("es"), ["/profile"]);
+    assert(profile?.type === "animated", "Expected profile section output");
+    assert(
+      profile.text.includes("[hermesrm (Hermes Rodríguez Mohedano)](https://github.com/hermesrm)"),
+      "Expected the requested GitHub link in profile"
+    );
+    assert(
+      profile.text.includes("[Hermes Rodríguez Mohedano - Prosegur | LinkedIn](https://es.linkedin.com/in/hermesrm)"),
+      "Expected the requested LinkedIn link in profile"
+    );
+    const contact = catCommand.execute(createContext("es"), ["/contact"]);
+    assert(contact.text.includes("[contacto@herzkrom.com](mailto:contacto@herzkrom.com)"), "Expected contact email link");
+
+    const registry = [openLinkCommand];
+    for (const [command, expectedUrl] of [
+      ["github", "https://github.com/hermesrm"],
+      ["linkedin", "https://es.linkedin.com/in/hermesrm"],
+    ]) {
+      const result = executeInput(command, createContext("es"), registry);
+      assert(result?.type === "external-link", `Expected ${command} to return an external link`);
+      assert(result.href === expectedUrl, `Expected ${command} to resolve to its approved profile`);
+    }
+    assert(
+      executeInput("open https://example.com", createContext("en"), registry).includes("Usage:"),
+      "Expected arbitrary URLs to be rejected"
+    );
   });
 
   test("calculator: evaluates expressions through command and bare input", () => {
@@ -402,11 +472,11 @@ export function runCommandTests(test) {
     assert(output.includes("Command not found"), "Expected command not found message");
   });
 
-  test("executeInput: registered command takes precedence over alias", () => {
+  test("executeInput: registered profile command takes precedence over alias", () => {
     const context = createContext("es");
-    const output = executeInput("pdf", context, [pdfCommand, catCommand]);
-    assert(typeof output === "string", "Expected the pdf command to run directly");
-    assert(output.includes("no está disponible"), "Expected PDF availability status");
+    const output = executeInput("github", context, [openLinkCommand]);
+    assert(output?.type === "external-link", "Expected the GitHub command to run directly");
+    assert(output.href === "https://github.com/hermesrm", "Expected the approved GitHub profile");
   });
 
   test("executeInput: feature aliases still resolve", () => {

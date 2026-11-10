@@ -26,7 +26,7 @@ import { fileSystem } from "./filesystem.js";
 
 /** @type {SessionState} */
 const SessionContext = {
-  cwd: [], // Directorio actual como array (ej. ['cv','skills'])
+  cwd: [], // Directorio actual como array (ej. ['profile'])
   lang: "es", // Idioma activo ('es' | 'en')
   history: [], // Historial de comandos
   historyIndex: null, // Índice para navegación con ↑ ↓

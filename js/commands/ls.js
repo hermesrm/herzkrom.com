@@ -7,14 +7,8 @@ import { resolveCwd } from "../context.js";
 
 // ES: Mapeo de nombres de directorios por idioma. EN: Directory name mapping per language.
 const directoryNames = {
-  about: { es: "acerca", en: "about" },
-  skills: { es: "habilidades", en: "skills" },
-  competencies: { es: "competencias", en: "competencies" },
-  experience: { es: "experiencia", en: "experience" },
-  education: { es: "educación", en: "education" },
-  projects: { es: "proyectos", en: "projects" },
+  profile: { es: "perfil", en: "profile" },
   contact: { es: "contacto", en: "contact" },
-  pdf: { es: "pdf", en: "pdf" },
 };
 
 function getDisplayName(name, lang) {

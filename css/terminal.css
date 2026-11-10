@@ -208,6 +208,17 @@ body {
   padding-left: 4px;
 }
 
+.terminal-link {
+  color: #58a6ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.terminal-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 /* Comentarios / Comments */
 .comment {
   color: #8b949e;

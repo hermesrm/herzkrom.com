@@ -29,4 +29,32 @@ function appendCommandHistory(output, documentRef, userHost, path, command, maxN
   trimOutputNodes(output, maxNodes);
 }
 
-export { trimOutputNodes, appendCommandHistory };
+function appendTextWithSafeLinks(container, text, documentRef = globalThis.document) {
+  const allowedLinks =
+    /\[([^\]]+)\]\((https:\/\/(?:github\.com\/hermesrm|es\.linkedin\.com\/in\/hermesrm)|mailto:contacto@herzkrom\.com)\)/g;
+  let position = 0;
+  let match;
+
+  while ((match = allowedLinks.exec(text))) {
+    if (match.index > position) {
+      container.appendChild(documentRef.createTextNode(text.slice(position, match.index)));
+    }
+
+    const link = documentRef.createElement("a");
+    link.href = match[2];
+    link.className = "terminal-link";
+    if (match[2].startsWith("https://")) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+    link.textContent = match[1];
+    container.appendChild(link);
+    position = allowedLinks.lastIndex;
+  }
+
+  if (position < text.length) {
+    container.appendChild(documentRef.createTextNode(text.slice(position)));
+  }
+}
+
+export { trimOutputNodes, appendCommandHistory, appendTextWithSafeLinks };

@@ -74,24 +74,18 @@ const helpCommand = {
     const aliasDescriptions =
       lang === "es"
         ? {
-            acerca: "Acerca de mí",
-            habilidades: "Habilidades técnicas",
-            competencias: "Competencias profesionales",
-            experiencia: "Experiencia laboral",
-            educacion: "Formación",
-            proyectos: "Proyectos personales",
+            acerca: "Perfil personal",
+            perfil: "Perfil personal",
             contacto: "Información de contacto",
-            pdf: "Disponibilidad del CV en PDF",
+            github: "Perfil de GitHub",
+            linkedin: "Perfil de LinkedIn",
           }
         : {
-            about: "About me",
-            skills: "Technical skills",
-            competencies: "Professional competencies",
-            experience: "Work experience",
-            education: "Education",
-            projects: "Personal projects",
+            about: "Personal profile",
+            profile: "Personal profile",
             contact: "Contact information",
-            pdf: "PDF résumé availability",
+            github: "GitHub profile",
+            linkedin: "LinkedIn profile",
           };
 
     const LINUX_IDS = new Set([
@@ -107,7 +101,7 @@ const helpCommand = {
       "REBOOT",
     ]);
     const native = commandRegistry.filter((c) => LINUX_IDS.has(c.id));
-    const additionalCommands = commandRegistry.filter((c) => c.id === "CALC");
+    const additionalCommands = commandRegistry.filter((c) => ["CALC", "OPEN_LINK"].includes(c.id));
 
     return {
       type: "help",

@@ -1,10 +1,10 @@
-# Herzkrom — CV interactivo
+# Herzkrom — Consola interactiva
 
 ## Español
 
 ### Resumen
 
-Este es mi currículum en formato de terminal web. Puedes recorrer mi perfil con comandos como `help`, `ls` y `cat`, en español o en inglés. Los comandos son una simulación: no ejecutan procesos ni comandos del sistema en tu equipo.
+Este es mi espacio personal en formato de terminal web. Incluye un perfil breve, enlaces de contacto y herramientas interactivas. Puedes explorarlo con comandos como `help`, `ls` y `cat`, en español o en inglés. Los comandos son una simulación: no ejecutan procesos ni comandos del sistema en tu equipo.
 
 ### Ejecución local
 
@@ -32,7 +32,7 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 - `js/` — código JS modular
   - `main.js` — inicialización, interfaz, entrada y teclado
   - `context.js` — estado de sesión y resolución de rutas virtuales
-  - `filesystem.js` — estructura virtual del CV (multilenguaje)
+  - `filesystem.js` — contenido virtual del perfil y contacto (multilenguaje)
   - `parser.js` — tokenización, alias y despacho de comandos
   - `aliases.js` — alias semánticos por idioma
   - `autocomplete.js` — sugerencias de comandos, alias y rutas
@@ -53,21 +53,24 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 - `clear` — Limpia la salida de la terminal.
 - `echo <texto>` — Muestra texto simple.
 - `history` — Muestra historial de comandos.
-- `pdf` — Informa que todavía no hay un CV en PDF disponible.
+- `perfil` / `profile` — Muestra una presentación breve y enlaces a GitHub y LinkedIn.
+- `contacto` / `contact` — Muestra el correo de contacto.
+- `github` / `linkedin` — Abre los perfiles externos.
+- `calc` — Evalúa expresiones aritméticas y científicas.
 - `reboot` — Reinicia la sesión simulada.
 
 ### Autocompletado (Tab)
 
 - Pulsa Tab para completar comandos y alias según el idioma activo.
 - Después de `cd` o `cat`, Tab sugiere rutas del directorio actual.
-- Las coincidencias no distinguen mayúsculas ni acentos; por ejemplo, `educacion` encuentra `educación`.
+- Las coincidencias no distinguen mayúsculas ni acentos al completar rutas.
 
 ### Notas para desarrolladores
 
 - Para añadir un comando, crea un archivo en `js/commands/` que exporte `{ id, aliases, description, execute(context,args,registry) }`, regístralo en `main.js` y añade pruebas.
 - `SessionContext` (`context.js`) guarda el estado de la sesión. `storage.js` recuerda el nombre con `localStorage` cuando está disponible; si el navegador lo bloquea, la aplicación sigue funcionando sin guardarlo.
 - `aliases.js` reúne los alias en español e inglés. `parser.js` los resuelve antes de ejecutar cada comando.
-- `filesystem.js` contiene el CV; cada sección guarda su texto en español e inglés.
+- `filesystem.js` contiene únicamente el perfil breve y los datos de contacto en español e inglés.
 - `autocomplete.js` calcula las sugerencias. `main.js` gestiona Tab y el ciclo entre ellas.
 - La interfaz inserta texto con `textContent` y limita la salida a 600 nodos y el historial a 200 comandos.
 - `output.js` dibuja el prompt y aplica el límite de salida.
@@ -91,7 +94,7 @@ npm run lint
 
 ### Summary
 
-This is my résumé in the form of a web terminal. Explore my profile with commands such as `help`, `ls` and `cat`, in either Spanish or English. The commands are simulated; they do not run shell commands or processes on your computer.
+This is my personal space in the form of a web terminal. It includes a short profile, contact links, and interactive tools. Explore it with commands such as `help`, `ls` and `cat`, in either Spanish or English. The commands are simulated; they do not run shell commands or processes on your computer.
 
 ### Run locally
 
@@ -119,7 +122,7 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 - `js/` — modular JS code
   - `main.js` — initialization, UI, input and keyboard flow
   - `context.js` — session state and virtual path resolution
-  - `filesystem.js` — virtual CV structure (multilanguage)
+  - `filesystem.js` — virtual profile and contact content (multilanguage)
   - `parser.js` — tokenization, alias resolution and command dispatch
   - `aliases.js` — semantic aliases by language
   - `autocomplete.js` — command, alias and path suggestions
@@ -140,21 +143,24 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 - `clear` — Clear the terminal output.
 - `echo <text>` — Print plain text.
 - `history` — Show command history.
-- `pdf` — Reports that there is no PDF résumé available yet.
+- `profile` / `perfil` — Shows a short introduction and GitHub and LinkedIn links.
+- `contact` / `contacto` — Shows the contact email.
+- `github` / `linkedin` — Opens the external profiles.
+- `calc` — Evaluates arithmetic and scientific expressions.
 - `reboot` — Reset the simulated session.
 
 ### Autocomplete (Tab)
 
 - Press Tab to complete commands and aliases for the active language.
 - After `cd` or `cat`, Tab suggests paths from the current directory.
-- Matching ignores letter case and accents; for example, `educacion` finds `educación`.
+- Path completion ignores letter case and accents.
 
 ### Developer notes
 
 - To add a command, create a file in `js/commands/` exporting `{ id, aliases, description, execute(context,args,registry) }`, register it in `main.js`, and add tests.
 - `SessionContext` (`context.js`) holds live session state. `storage.js` remembers the username in `localStorage` when available; the app still works if the browser blocks storage.
 - `aliases.js` contains the Spanish and English aliases. `parser.js` resolves them before running a command.
-- `filesystem.js` holds the CV; each section stores its text in Spanish and English.
+- `filesystem.js` holds only the short profile and contact details in Spanish and English.
 - `autocomplete.js` calculates suggestions. `main.js` handles Tab and cycles through them.
 - The UI inserts text with `textContent` and caps output at 600 nodes and history at 200 commands.
 - `output.js` renders the prompt and enforces the output limit.

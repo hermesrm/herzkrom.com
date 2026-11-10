@@ -9,7 +9,7 @@ import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
 import { updateDocumentLanguage } from "./accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "./autocomplete.js";
-import { trimOutputNodes, appendCommandHistory } from "./output.js";
+import { trimOutputNodes, appendCommandHistory, appendTextWithSafeLinks } from "./output.js";
 import { isInputDebugEnabled } from "./debug.js";
 
 // Commands
@@ -20,11 +20,11 @@ import { helpCommand } from "./commands/help.js";
 import { languageCommand } from "./commands/idioma.js";
 import { historyCommand } from "./commands/history.js";
 import { whoamiCommand } from "./commands/whoami.js";
-import { pdfCommand } from "./commands/pdf.js";
 import { pwdCommand } from "./commands/pwd.js";
 import { clearCommand } from "./commands/clear.js";
 import { echoCommand } from "./commands/echo.js";
 import { rebootCommand } from "./commands/reboot.js";
+import { openLinkCommand } from "./commands/open.js";
 import { calcCommand } from "./commands/calc.js";
 
 /* =============================
@@ -101,12 +101,12 @@ const commandRegistry = [
   languageCommand,
   historyCommand,
   whoamiCommand,
-  pdfCommand,
   pwdCommand,
   clearCommand,
   echoCommand,
   rebootCommand,
   calcCommand,
+  openLinkCommand,
 ];
 
 /* =============================
@@ -136,8 +136,7 @@ const UI_TEXT = {
     nameOptional: "(opcional)",
     nameNewHint: "(nuevo)",
     newNamePrompt: "Ingrese un nuevo nombre:",
-    startHint:
-      "# Introduzca 'acerca' o 'habilidades' para comenzar; 'help' muestra todos los comandos.",
+    startHint: "# Introduzca 'perfil' o 'contacto' para comenzar; 'help' muestra los comandos.",
     invalidYesNo: "Por favor, responde con 's' (sí) o 'n' (no)",
     welcome: (name) => `¡Bienvenido/a, ${name}!`,
   },
@@ -160,7 +159,7 @@ const UI_TEXT = {
     nameOptional: "(optional)",
     nameNewHint: "(new)",
     newNamePrompt: "Enter a new name:",
-    startHint: "# Type 'about' or 'skills' to begin; 'help' shows all commands.",
+    startHint: "# Type 'profile' or 'contact' to begin; 'help' shows all commands.",
     invalidYesNo: "Please answer with 'y' (yes) or 'n' (no)",
     welcome: (name) => `Welcome, ${name}!`,
   },
@@ -388,7 +387,7 @@ async function printOutput(text) {
 
   const autoScrollEnabled = isNearBottom(terminal);
 
-  div.textContent = text;
+  appendTextWithSafeLinks(div, String(text ?? ""), document);
   if (autoScrollEnabled) {
     terminal.scrollTop = terminal.scrollHeight;
   }
@@ -654,7 +653,30 @@ async function handleEnter() {
   }
 
   if (result) {
-    if (result.type === "animated") {
+    if (result.type === "external-link") {
+      let openedWindow = null;
+      try {
+        openedWindow = window.open(result.href, "_blank");
+        if (openedWindow) openedWindow.opener = null;
+      } catch {
+        openedWindow = null;
+      }
+
+      if (openedWindow) {
+        await printOutput(
+          SessionContext.lang === "es"
+            ? `Abriendo ${result.label} en una pestaña nueva.`
+            : `Opening ${result.label} in a new tab.`
+        );
+      } else {
+        await printOutput(
+          SessionContext.lang === "es"
+            ? "El navegador bloqueó la pestaña. Abre este enlace:"
+            : "The browser blocked the new tab. Open this link:"
+        );
+        await printOutput(`[${result.label}](${result.href})`);
+      }
+    } else if (result.type === "animated") {
       printLine("");
       await printOutput(result.text);
       printLine("");
