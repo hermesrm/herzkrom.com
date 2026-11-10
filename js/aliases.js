@@ -12,18 +12,12 @@
 
 const aliasRegistry = {
   en: {
-    about: "cat /profile",
     profile: "cat /profile",
     contact: "cat /contact",
-    github: "open github",
-    linkedin: "open linkedin",
   },
   es: {
-    acerca: "cat /profile",
     perfil: "cat /profile",
     contacto: "cat /contact",
-    github: "open github",
-    linkedin: "open linkedin",
   },
 };
 

@@ -24,8 +24,8 @@ import { pwdCommand } from "./commands/pwd.js";
 import { clearCommand } from "./commands/clear.js";
 import { echoCommand } from "./commands/echo.js";
 import { rebootCommand } from "./commands/reboot.js";
-import { openLinkCommand } from "./commands/open.js";
 import { calcCommand } from "./commands/calc.js";
+import { profileLinkCommands } from "./commands/profile-links.js";
 
 /* =============================
    DOM references
@@ -106,7 +106,7 @@ const commandRegistry = [
   echoCommand,
   rebootCommand,
   calcCommand,
-  openLinkCommand,
+  ...profileLinkCommands,
 ];
 
 /* =============================
@@ -136,7 +136,7 @@ const UI_TEXT = {
     nameOptional: "(opcional)",
     nameNewHint: "(nuevo)",
     newNamePrompt: "Ingrese un nuevo nombre:",
-    startHint: "# Introduzca 'perfil' o 'contacto' para comenzar; 'help' muestra los comandos.",
+    startHint: "# Escriba 'help' para ver los comandos.",
     invalidYesNo: "Por favor, responde con 's' (sí) o 'n' (no)",
     welcome: (name) => `¡Bienvenido/a, ${name}!`,
   },
@@ -159,7 +159,7 @@ const UI_TEXT = {
     nameOptional: "(optional)",
     nameNewHint: "(new)",
     newNamePrompt: "Enter a new name:",
-    startHint: "# Type 'profile' or 'contact' to begin; 'help' shows all commands.",
+    startHint: "# Type 'help' to see the available commands.",
     invalidYesNo: "Please answer with 'y' (yes) or 'n' (no)",
     welcome: (name) => `Welcome, ${name}!`,
   },

@@ -74,18 +74,12 @@ const helpCommand = {
     const aliasDescriptions =
       lang === "es"
         ? {
-            acerca: "Perfil personal",
             perfil: "Perfil personal",
             contacto: "Información de contacto",
-            github: "Perfil de GitHub",
-            linkedin: "Perfil de LinkedIn",
           }
         : {
-            about: "Personal profile",
             profile: "Personal profile",
             contact: "Contact information",
-            github: "GitHub profile",
-            linkedin: "LinkedIn profile",
           };
 
     const LINUX_IDS = new Set([
@@ -101,7 +95,9 @@ const helpCommand = {
       "REBOOT",
     ]);
     const native = commandRegistry.filter((c) => LINUX_IDS.has(c.id));
-    const additionalCommands = commandRegistry.filter((c) => ["CALC", "OPEN_LINK"].includes(c.id));
+    const additionalCommands = commandRegistry.filter((c) =>
+      ["CALC", "GITHUB", "LINKEDIN"].includes(c.id)
+    );
 
     return {
       type: "help",

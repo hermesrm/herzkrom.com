@@ -17,7 +17,7 @@ import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomp
 import { appendCommandHistory, appendTextWithSafeLinks } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
 import { calcCommand } from "../js/commands/calc.js";
-import { openLinkCommand } from "../js/commands/open.js";
+import { profileLinkCommands } from "../js/commands/profile-links.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -131,14 +131,14 @@ export function runCommandTests(test) {
     const context = createContext("es");
     const commands = [lsCommand, cdCommand, catCommand];
     const commandMatches = getCompletions("c", context, commands);
-    const aliasMatches = getCompletions("ac", context, commands);
+    const aliasMatches = getCompletions("per", context, commands);
     const pathMatches = getCompletions("cd /per", context, commands);
     context.cwd = [];
     const currentDirectoryMatches = getCompletions("cd ", context, commands);
 
     assert(commandMatches.includes("cat"), "Expected cat command completion");
     assert(commandMatches.includes("cd"), "Expected cd command completion");
-    assert(aliasMatches.includes("acerca"), "Expected Spanish alias completion");
+    assert(aliasMatches.includes("perfil"), "Expected Spanish profile alias completion");
     assert(pathMatches.includes("/perfil"), "Expected translated profile path completion");
     assert(
       currentDirectoryMatches.includes("perfil"),
@@ -149,7 +149,7 @@ export function runCommandTests(test) {
       "Expected cd followed by a space not to suggest the command again"
     );
     assert(
-      applyCompletion("cd ", "acerca") === "cd acerca",
+      applyCompletion("cd ", "perfil") === "cd perfil",
       "Expected applying a path completion to preserve cd"
     );
     assert(
@@ -212,7 +212,7 @@ export function runCommandTests(test) {
       rebootCommand,
       whoamiCommand,
       calcCommand,
-      openLinkCommand,
+      ...profileLinkCommands,
     ];
 
     for (const lang of ["es", "en"]) {
@@ -320,10 +320,12 @@ export function runCommandTests(test) {
   });
 
   test("resolveAlias: Spanish alias", () => {
-    const result = resolveAlias("acerca", "es");
-    assert(result === aliasRegistry.es.acerca, "Expected alias expansion");
+    const result = resolveAlias("perfil", "es");
+    assert(result === aliasRegistry.es.perfil, "Expected profile alias expansion");
     assert(resolveAlias("perfil", "es") === "cat /profile", "Expected Spanish profile shortcut");
     assert(resolveAlias("profile", "en") === "cat /profile", "Expected English profile shortcut");
+    assert(!("acerca" in aliasRegistry.es), "Expected duplicate Spanish profile alias to be removed");
+    assert(!("about" in aliasRegistry.en), "Expected duplicate English profile alias to be removed");
   });
 
   test("ls: root lists profile and contact", () => {
@@ -400,7 +402,15 @@ export function runCommandTests(test) {
     const output = helpCommand.execute(
       context,
       [],
-      [lsCommand, cdCommand, catCommand, helpCommand, languageCommand, calcCommand, openLinkCommand]
+      [
+        lsCommand,
+        cdCommand,
+        catCommand,
+        helpCommand,
+        languageCommand,
+        calcCommand,
+        ...profileLinkCommands,
+      ]
     );
     assert(output && output.type === "help", "Expected help object");
     assert(Array.isArray(output.primary), "Expected primary list");
@@ -413,17 +423,18 @@ export function runCommandTests(test) {
     const profile = catCommand.execute(createContext("es"), ["/profile"]);
     assert(profile?.type === "animated", "Expected profile section output");
     assert(
-      profile.text.includes("[hermesrm (Hermes Rodríguez Mohedano)](https://github.com/hermesrm)"),
-      "Expected the requested GitHub link in profile"
+      profile.text.includes("[github.com/hermesrm](https://github.com/hermesrm)"),
+      "Expected the clean GitHub URL in profile"
     );
     assert(
-      profile.text.includes("[Hermes Rodríguez Mohedano - Prosegur | LinkedIn](https://es.linkedin.com/in/hermesrm)"),
-      "Expected the requested LinkedIn link in profile"
+      profile.text.includes("[es.linkedin.com/in/hermesrm](https://es.linkedin.com/in/hermesrm)"),
+      "Expected the clean LinkedIn URL in profile"
     );
     const contact = catCommand.execute(createContext("es"), ["/contact"]);
     assert(contact.text.includes("[contacto@herzkrom.com](mailto:contacto@herzkrom.com)"), "Expected contact email link");
+    assert(!contact.text.includes("Correo:"), "Expected no label before the email");
 
-    const registry = [openLinkCommand];
+    const registry = profileLinkCommands;
     for (const [command, expectedUrl] of [
       ["github", "https://github.com/hermesrm"],
       ["linkedin", "https://es.linkedin.com/in/hermesrm"],
@@ -433,8 +444,12 @@ export function runCommandTests(test) {
       assert(result.href === expectedUrl, `Expected ${command} to resolve to its approved profile`);
     }
     assert(
-      executeInput("open https://example.com", createContext("en"), registry).includes("Usage:"),
-      "Expected arbitrary URLs to be rejected"
+      executeInput("open github", createContext("en"), registry).includes("Command not found"),
+      "Expected the unrequested open command to be unavailable"
+    );
+    assert(
+      executeInput("abrir github", createContext("es"), registry).includes("Comando no reconocido"),
+      "Expected the unrequested abrir command to be unavailable"
     );
   });
 
@@ -474,14 +489,14 @@ export function runCommandTests(test) {
 
   test("executeInput: registered profile command takes precedence over alias", () => {
     const context = createContext("es");
-    const output = executeInput("github", context, [openLinkCommand]);
+    const output = executeInput("github", context, profileLinkCommands);
     assert(output?.type === "external-link", "Expected the GitHub command to run directly");
     assert(output.href === "https://github.com/hermesrm", "Expected the approved GitHub profile");
   });
 
-  test("executeInput: feature aliases still resolve", () => {
+  test("executeInput: profile alias resolves", () => {
     const context = createContext("es");
-    const output = executeInput("acerca", context, [catCommand]);
+    const output = executeInput("perfil", context, [catCommand]);
     assert(output?.type === "animated", "Expected the about alias to resolve to cat");
   });
 }

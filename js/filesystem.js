@@ -36,8 +36,8 @@ const fileSystem = {
           type: "file",
           name: "content",
           content: {
-            es: `Administrador de sistemas especializado en Microsoft 365 e infraestructura híbrida. Trabajo en modernización tecnológica, seguridad y continuidad operativa, combinando experiencia técnica con gestión de proyectos estratégicos.\n\nLinkedIn: [Hermes Rodríguez Mohedano - Prosegur | LinkedIn](https://es.linkedin.com/in/hermesrm)\nGitHub: [hermesrm (Hermes Rodríguez Mohedano)](https://github.com/hermesrm)`,
-            en: `Systems administrator focused on Microsoft 365 and hybrid infrastructure. I work on technology modernization, security, and operational continuity, combining technical experience with strategic project management.\n\nLinkedIn: [Hermes Rodríguez Mohedano - Prosegur | LinkedIn](https://es.linkedin.com/in/hermesrm)\nGitHub: [hermesrm (Hermes Rodríguez Mohedano)](https://github.com/hermesrm)`,
+            es: `Administrador de sistemas especializado en Microsoft 365 e infraestructura híbrida. Trabajo en modernización tecnológica, seguridad y continuidad operativa, combinando experiencia técnica con gestión de proyectos estratégicos.\n\n[es.linkedin.com/in/hermesrm](https://es.linkedin.com/in/hermesrm)\n[github.com/hermesrm](https://github.com/hermesrm)`,
+            en: `Systems administrator focused on Microsoft 365 and hybrid infrastructure. I work on technology modernization, security, and operational continuity, combining technical experience with strategic project management.\n\n[es.linkedin.com/in/hermesrm](https://es.linkedin.com/in/hermesrm)\n[github.com/hermesrm](https://github.com/hermesrm)`,
           },
         },
       },
@@ -50,8 +50,8 @@ const fileSystem = {
           type: "file",
           name: "content",
           content: {
-            es: `Correo: [contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
-            en: `Email: [contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
+            es: `[contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
+            en: `[contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
           },
         },
       },
