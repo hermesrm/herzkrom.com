@@ -18,6 +18,7 @@ import { appendCommandHistory, appendTextWithSafeLinks } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
 import { calcCommand } from "../js/commands/calc.js";
 import { profileLinkCommands } from "../js/commands/profile-links.js";
+import { getPromptUsername } from "../js/prompt.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -110,17 +111,18 @@ export function runCommandTests(test) {
 
     appendTextWithSafeLinks(
       container,
-      "[GitHub](https://github.com/hermesrm) [Email](mailto:contacto@herzkrom.com) [untrusted](javascript:alert(1))",
+      "[GitHub](https://github.com/hermesrm) [Correo](mailto:contacto@herzkrom.com) [Email](mailto:contact@herzkrom.com) [untrusted](javascript:alert(1))",
       documentRef
     );
 
     const links = container.children.filter((child) => child.kind === "a");
-    assert(links.length === 2, "Expected only approved profile and email links to be clickable");
+    assert(links.length === 3, "Expected approved profile and localized email links to be clickable");
     assert(links[0].href === "https://github.com/hermesrm", "Expected approved GitHub URL");
     assert(links[0].target === "_blank", "Expected links to open in a new tab");
     assert(links[0].rel === "noopener noreferrer", "Expected safe external link attributes");
     assert(links[1].href === "mailto:contacto@herzkrom.com", "Expected approved email link");
     assert(!links[1].target, "Expected email links to use the mail handler directly");
+    assert(links[2].href === "mailto:contact@herzkrom.com", "Expected approved English email link");
     assert(
       container.children.some((child) => child.textContent.includes("javascript:alert(1)")),
       "Expected untrusted destination to remain plain text"
@@ -240,6 +242,13 @@ export function runCommandTests(test) {
 
     const englishContext = createContext("en");
     assert(whoamiCommand.execute(englishContext, []) === "Guest", "Expected English guest name");
+  });
+
+  test("prompt: localizes the guest username and preserves custom usernames", () => {
+    assert(getPromptUsername(null, "es") === "invitado", "Expected lowercase Spanish guest username");
+    assert(getPromptUsername("guest", "en") === "guest", "Expected lowercase English guest username");
+    assert(getPromptUsername("ana", "es") === "ana", "Expected custom usernames to remain unchanged");
+    assert(getPromptUsername(null, "fr") === "guest", "Expected unknown locales to use English fallback");
   });
 
   test("storage: blocked persistence does not break the session", () => {
@@ -445,9 +454,17 @@ export function runCommandTests(test) {
       profile.text.includes("[es.linkedin.com/in/hermesrm](https://es.linkedin.com/in/hermesrm)"),
       "Expected the clean LinkedIn URL in profile"
     );
-    const contact = catCommand.execute(createContext("es"), ["/contact"]);
-    assert(contact.text.includes("[contacto@herzkrom.com](mailto:contacto@herzkrom.com)"), "Expected contact email link");
-    assert(!contact.text.includes("Correo:"), "Expected no label before the email");
+    for (const [lang, email] of [
+      ["es", "contacto@herzkrom.com"],
+      ["en", "contact@herzkrom.com"],
+    ]) {
+      const contact = catCommand.execute(createContext(lang), ["/contact"]);
+      assert(
+        contact.text.includes(`[${email}](mailto:${email})`),
+        `Expected ${email} in ${lang} contact`
+      );
+      assert(!contact.text.includes("Correo:") && !contact.text.includes("Email:"), "Expected email without a label");
+    }
 
     const registry = profileLinkCommands;
     for (const [command, expectedUrl] of [

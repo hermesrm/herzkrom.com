@@ -31,7 +31,7 @@ function appendCommandHistory(output, documentRef, userHost, path, command, maxN
 
 function appendTextWithSafeLinks(container, text, documentRef = globalThis.document) {
   const allowedLinks =
-    /\[([^\]]+)\]\((https:\/\/(?:github\.com\/hermesrm|es\.linkedin\.com\/in\/hermesrm)|mailto:contacto@herzkrom\.com)\)/g;
+    /\[([^\]]+)\]\((https:\/\/(?:github\.com\/hermesrm|es\.linkedin\.com\/in\/hermesrm)|mailto:(?:contacto|contact)@herzkrom\.com)\)/g;
   let position = 0;
   let match;
 

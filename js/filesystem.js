@@ -51,7 +51,7 @@ const fileSystem = {
           name: "content",
           content: {
             es: `[contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
-            en: `[contacto@herzkrom.com](mailto:contacto@herzkrom.com)`,
+            en: `[contact@herzkrom.com](mailto:contact@herzkrom.com)`,
           },
         },
       },
