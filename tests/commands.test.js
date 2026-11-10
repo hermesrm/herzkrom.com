@@ -237,11 +237,17 @@ export function runCommandTests(test) {
     assert(whoamiCommand.execute(spanishContext, []) === "invitado", "Expected lowercase Spanish guest name");
     spanishContext.visitor.name = "guest";
     assert(whoamiCommand.execute(spanishContext, []) === "invitado", "Expected lowercase Spanish guest id");
+    spanishContext.visitor.name = "Invitado";
+    assert(whoamiCommand.execute(spanishContext, []) === "invitado", "Expected legacy guest name to be normalized");
     spanishContext.visitor.name = "ana";
     assert(whoamiCommand.execute(spanishContext, []) === "ana", "Expected custom username to remain unchanged");
+    spanishContext.visitor.name = "Ana";
+    assert(whoamiCommand.execute(spanishContext, []) === "Ana", "Expected custom username casing to be preserved");
 
     const englishContext = createContext("en");
     assert(whoamiCommand.execute(englishContext, []) === "guest", "Expected lowercase English guest name");
+    englishContext.visitor.name = "Guest";
+    assert(whoamiCommand.execute(englishContext, []) === "guest", "Expected legacy English guest name to be normalized");
   });
 
   test("pwd: displays directory names in the active language", () => {
@@ -259,6 +265,8 @@ export function runCommandTests(test) {
   test("prompt: localizes the guest username and preserves custom usernames", () => {
     assert(getPromptUsername(null, "es") === "invitado", "Expected lowercase Spanish guest username");
     assert(getPromptUsername("guest", "en") === "guest", "Expected lowercase English guest username");
+    assert(getPromptUsername("Invitado", "es") === "invitado", "Expected legacy guest name in Spanish prompt");
+    assert(getPromptUsername("Guest", "en") === "guest", "Expected legacy guest name in English prompt");
     assert(getPromptUsername("ana", "es") === "ana", "Expected custom usernames to remain unchanged");
     assert(getPromptUsername(null, "fr") === "guest", "Expected unknown locales to use English fallback");
   });

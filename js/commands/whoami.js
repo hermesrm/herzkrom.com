@@ -64,7 +64,8 @@ const whoamiCommand = {
       }
     }
     const visitorName = context.visitor.name;
-    if (!visitorName || visitorName === "guest") {
+    const normalizedName = visitorName?.trim().toLowerCase();
+    if (!normalizedName || ["guest", "invitado"].includes(normalizedName)) {
       return context.lang === "es" ? "invitado" : "guest";
     }
     return visitorName;
