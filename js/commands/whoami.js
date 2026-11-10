@@ -5,6 +5,7 @@
 
 const whoamiCommand = {
   id: "WHOAMI",
+  help: { section: "system", order: 80 },
   aliases: {
     es: ["whoami"],
     en: ["whoami"],

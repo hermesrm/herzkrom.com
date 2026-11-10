@@ -1,24 +1,24 @@
-import { aliasRegistry } from "../js/aliases.js";
+import { aliasRegistry, navigationAliases } from "../js/aliases.js";
 import { fileSystem } from "../js/filesystem.js";
 import { resolveAlias, tokenize, executeInput } from "../js/parser.js";
-import { lsCommand } from "../js/commands/ls.js";
+import { directoryNames, lsCommand } from "../js/commands/ls.js";
 import { cdCommand } from "../js/commands/cd.js";
 import { catCommand } from "../js/commands/cat.js";
-import { clearCommand } from "../js/commands/clear.js";
 import { helpCommand } from "../js/commands/help.js";
-import { historyCommand } from "../js/commands/history.js";
-import { languageCommand } from "../js/commands/idioma.js";
 import { pwdCommand } from "../js/commands/pwd.js";
-import { rebootCommand } from "../js/commands/reboot.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "../js/storage.js";
 import { whoamiCommand } from "../js/commands/whoami.js";
-import { updateDocumentLanguage } from "../js/accessibility.js";
+import { ACCESSIBLE_LABELS, updateDocumentLanguage } from "../js/accessibility.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "../js/autocomplete.js";
 import { appendCommandHistory, appendTextWithSafeLinks } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
+import { CALCULATOR_ERROR_MESSAGES } from "../js/calculator.js";
 import { calcCommand } from "../js/commands/calc.js";
 import { profileLinkCommands } from "../js/commands/profile-links.js";
-import { getPromptUsername } from "../js/prompt.js";
+import { getPromptUsername, PROMPT_GUEST_NAMES } from "../js/prompt.js";
+import { FALLBACK_LANGUAGE, SUPPORTED_LANGUAGES, resolveLanguage } from "../js/locales.js";
+import { UI_TEXT } from "../js/ui-text.js";
+import { commandRegistry } from "../js/commands/index.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -38,6 +38,71 @@ function createContext(lang = "es") {
 }
 
 export function runCommandTests(test) {
+  test("locales: resolves browser languages and fallback consistently", () => {
+    assert(resolveLanguage("es") === "es", "Expected Spanish locale");
+    assert(resolveLanguage("es-MX") === "es", "Expected Spanish regional locale");
+    assert(resolveLanguage("es_ES") === "es", "Expected underscore locale format");
+    assert(resolveLanguage("zz-ZZ") === FALLBACK_LANGUAGE, "Expected unsupported locale fallback");
+    assert(
+      SUPPORTED_LANGUAGES.includes("es") && SUPPORTED_LANGUAGES.includes("en"),
+      "Expected Spanish and English to be centrally supported"
+    );
+    assert(
+      new Set(SUPPORTED_LANGUAGES).size === SUPPORTED_LANGUAGES.length,
+      "Expected supported language codes to be unique"
+    );
+  });
+
+  test("locales: every supported language has complete catalogs", () => {
+    const uiKeys = Object.keys(UI_TEXT[FALLBACK_LANGUAGE]).sort().join("\u0000");
+    const commands = commandRegistry;
+
+    for (const language of SUPPORTED_LANGUAGES) {
+      assert(UI_TEXT[language], `Expected UI text for ${language}`);
+      assert(
+        Object.keys(UI_TEXT[language]).sort().join("\u0000") === uiKeys,
+        `Expected UI text keys to be complete in ${language}`
+      );
+      assert(typeof PROMPT_GUEST_NAMES[language] === "string", `Expected prompt guest name for ${language}`);
+
+      for (const [name, labels] of Object.entries(ACCESSIBLE_LABELS)) {
+        assert(typeof labels[language] === "string", `Expected accessible label ${name} in ${language}`);
+      }
+      for (const [name, translations] of Object.entries(directoryNames)) {
+        assert(typeof translations[language] === "string", `Expected path label ${name} in ${language}`);
+      }
+      for (const [code, messages] of Object.entries(CALCULATOR_ERROR_MESSAGES[language] || {})) {
+        assert(typeof messages === "string", `Expected calculator error ${code} in ${language}`);
+      }
+
+      assert(Array.isArray(navigationAliases[language]), `Expected navigation aliases for ${language}`);
+      for (const alias of navigationAliases[language]) {
+        assert(aliasRegistry[language][alias.name] === alias.target, `Expected target for ${alias.name} in ${language}`);
+        assert(alias.description && Number.isFinite(alias.order), `Expected help metadata for ${alias.name}`);
+      }
+
+      for (const command of commands) {
+        assert(command.aliases[language]?.length, `Expected aliases for ${command.id} in ${language}`);
+        assert(command.description[language], `Expected description for ${command.id} in ${language}`);
+        assert(command.help?.section && Number.isFinite(command.help.order), `Expected help ordering for ${command.id}`);
+      }
+    }
+
+    function inspectFilesystem(node, path = "/") {
+      if (node.type === "file") {
+        for (const language of SUPPORTED_LANGUAGES) {
+          assert(typeof node.content?.[language] === "string", `Expected ${language} content in ${path}`);
+        }
+        return;
+      }
+      for (const [name, child] of Object.entries(node.children || {})) {
+        inspectFilesystem(child, `${path}${name}/`);
+      }
+    }
+
+    inspectFilesystem(fileSystem);
+  });
+
   test("debug input: enabled only on localhost", () => {
     assert(
       isInputDebugEnabled({ hostname: "localhost", hash: "", search: "?debug-input" }),
@@ -204,22 +269,11 @@ export function runCommandTests(test) {
   });
 
   test("commands: help describes available behavior in both languages", () => {
-    const commands = [
-      lsCommand,
-      cdCommand,
-      catCommand,
-      clearCommand,
-      historyCommand,
-      pwdCommand,
-      rebootCommand,
-      whoamiCommand,
-      calcCommand,
-      ...profileLinkCommands,
-    ];
-
     for (const lang of ["es", "en"]) {
-      for (const command of commands) {
-        const result = command.execute(createContext(lang), ["--help"]);
+      for (const command of commandRegistry) {
+        const context = createContext(lang);
+        context.inputCmd = command.aliases[lang][0];
+        const result = command.execute(context, ["--help"]);
         assert(result?.code === 0, `Expected ${command.id} help to succeed in ${lang}`);
         assert(
           !/por implementar|to be implemented/i.test(result.output),
@@ -428,19 +482,7 @@ export function runCommandTests(test) {
 
   test("help: returns structured help", () => {
     const context = createContext("en");
-    const output = helpCommand.execute(
-      context,
-      [],
-      [
-        lsCommand,
-        cdCommand,
-        catCommand,
-        helpCommand,
-        languageCommand,
-        calcCommand,
-        ...profileLinkCommands,
-      ]
-    );
+    const output = helpCommand.execute(context, [], commandRegistry);
     assert(output && output.type === "help", "Expected help object");
     assert(Array.isArray(output.primary), "Expected primary list");
     assert(output.primary.some((item) => item.cmd === "calc"), "Expected calc in primary help");
@@ -454,7 +496,7 @@ export function runCommandTests(test) {
       const localizedHelp = helpCommand.execute(
         createContext(lang),
         [],
-        [helpCommand, languageCommand, calcCommand, ...profileLinkCommands]
+        commandRegistry
       );
       assert(
         JSON.stringify(localizedHelp.primary.map((item) => item.cmd)) === JSON.stringify(expectedOrder),

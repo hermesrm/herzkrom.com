@@ -5,6 +5,7 @@
 
 const clearCommand = {
   id: "CLEAR",
+  help: { section: "system", order: 50 },
   aliases: {
     es: ["clear"],
     en: ["clear"],

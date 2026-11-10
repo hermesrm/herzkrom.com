@@ -9,24 +9,14 @@ import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
 import { updateDocumentLanguage } from "./accessibility.js";
 import { getPromptUsername } from "./prompt.js";
+import { getLocalizedValue, resolveLanguage } from "./locales.js";
+import { UI_TEXT } from "./ui-text.js";
 import { getCompletions, applyCompletion, getCommonPrefix } from "./autocomplete.js";
 import { trimOutputNodes, appendCommandHistory, appendTextWithSafeLinks } from "./output.js";
 import { isInputDebugEnabled } from "./debug.js";
 
-// Commands
-import { lsCommand, getDisplayPath } from "./commands/ls.js";
-import { cdCommand } from "./commands/cd.js";
-import { catCommand } from "./commands/cat.js";
-import { helpCommand } from "./commands/help.js";
-import { languageCommand } from "./commands/idioma.js";
-import { historyCommand } from "./commands/history.js";
-import { whoamiCommand } from "./commands/whoami.js";
-import { pwdCommand } from "./commands/pwd.js";
-import { clearCommand } from "./commands/clear.js";
-import { echoCommand } from "./commands/echo.js";
-import { rebootCommand } from "./commands/reboot.js";
-import { calcCommand } from "./commands/calc.js";
-import { profileLinkCommands } from "./commands/profile-links.js";
+import { getDisplayPath } from "./commands/ls.js";
+import { commandRegistry } from "./commands/index.js";
 
 /* =============================
    DOM references
@@ -91,81 +81,14 @@ if (window.visualViewport) {
 window.addEventListener("resize", updateKeyboardOffset);
 
 /* =============================
-   Command registry
-   ============================= */
-
-const commandRegistry = [
-  lsCommand,
-  cdCommand,
-  catCommand,
-  helpCommand,
-  languageCommand,
-  historyCommand,
-  whoamiCommand,
-  pwdCommand,
-  clearCommand,
-  echoCommand,
-  rebootCommand,
-  calcCommand,
-  ...profileLinkCommands,
-];
-
-/* =============================
    Username constraints
    ============================= */
 
 const USERNAME_MAX_LENGTH = 16;
 const PROMPT_USERNAME_REGEX = /^[a-z0-9]+$/; // Solo minúsculas y dígitos, sin espacios
 
-const UI_TEXT = {
-  es: {
-    guest: "Invitado",
-    welcomeBack: (name) => `¡Bienvenido/a de vuelta, ${name}!`,
-    continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
-    answerLabel: "Respuesta",
-    welcomeLines: [
-      "¡Bienvenido/a a herzkrom.com!",
-      "",
-      "Perfil interactivo en modo CLI (Command‑Line Interface)",
-      "",
-      "Puede explorar el perfil mediante la simulación de comandos.",
-      "",
-    ],
-    nameHint: "Introduzca su nombre si desea personalizar la sesión.",
-    nameLabel: "Nombre",
-    nameOptional: "(opcional)",
-    nameNewHint: "(nuevo)",
-    newNamePrompt: "Ingrese un nuevo nombre:",
-    startHint: "# Escriba 'help' para ver los comandos.",
-    invalidYesNo: "Por favor, responde con 's' (sí) o 'n' (no)",
-    welcome: (name) => `¡Bienvenido/a, ${name}!`,
-  },
-  en: {
-    guest: "Guest",
-    welcomeBack: (name) => `Welcome back, ${name}!`,
-    continueQuestion: "Do you want to continue with this username? (y/n)",
-    answerLabel: "Answer",
-    welcomeLines: [
-      "Welcome to herzkrom.com!",
-      "",
-      "Interactive CLI‑Mode Profile (Command‑Line Interface)",
-      "",
-      "Explore the profile through simulated commands.",
-      "",
-    ],
-    nameHint: "Enter your name if you want to personalize the session.",
-    nameLabel: "Name",
-    nameOptional: "(optional)",
-    nameNewHint: "(new)",
-    newNamePrompt: "Enter a new name:",
-    startHint: "# Type 'help' to see the available commands.",
-    invalidYesNo: "Please answer with 'y' (yes) or 'n' (no)",
-    welcome: (name) => `Welcome, ${name}!`,
-  },
-};
-
 function t(key, ...args) {
-  const entry = UI_TEXT[SessionContext.lang]?.[key];
+  const entry = getLocalizedValue(UI_TEXT, SessionContext.lang)?.[key];
   return typeof entry === "function" ? entry(...args) : entry;
 }
 
@@ -452,8 +375,7 @@ function setPromptSymbol(label, hintText = "") {
    ============================= */
 
 function detectBrowserLang() {
-  const lang = navigator.language?.toLowerCase() || "en";
-  return lang.startsWith("es") ? "es" : "en";
+  return resolveLanguage(navigator.language);
 }
 
 SessionContext.lang = detectBrowserLang();

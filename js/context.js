@@ -17,7 +17,7 @@ import { fileSystem } from "./filesystem.js";
 /**
  * @typedef {Object} SessionState
  * @property {string[]} cwd
- * @property {"es"|"en"} lang
+ * @property {"es"|"en"|null} lang
  * @property {string[]} history
  * @property {number|null} historyIndex
  * @property {{name: string|null}} visitor
@@ -27,7 +27,7 @@ import { fileSystem } from "./filesystem.js";
 /** @type {SessionState} */
 const SessionContext = {
   cwd: [], // Directorio actual como array (ej. ['profile'])
-  lang: "es", // Idioma activo ('es' | 'en')
+  lang: null, // Se detecta desde el navegador antes de mostrar la interfaz.
   history: [], // Historial de comandos
   historyIndex: null, // Índice para navegación con ↑ ↓
   visitor: {

@@ -31,6 +31,8 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 - `css/terminal.css` — estilos de la terminal
 - `js/` — código JS modular
   - `main.js` — inicialización, interfaz, entrada y teclado
+  - `locales.js` — idiomas soportados, detección y fallback
+  - `ui-text.js` — mensajes de bienvenida e interfaz
   - `context.js` — estado de sesión y resolución de rutas virtuales
   - `filesystem.js` — contenido virtual del perfil y contacto (multilenguaje)
   - `parser.js` — tokenización, alias y despacho de comandos
@@ -39,7 +41,8 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
   - `accessibility.js` — idioma del documento y etiquetas accesibles
   - `storage.js` — persistencia opcional del nombre
   - `output.js` — renderizado del historial y límite de nodos
-  - `commands/` — implementación de los comandos
+  - `commands/index.js` — registro único de comandos
+  - `commands/` — implementación y metadatos de ayuda de los comandos
   - `tests/` — pruebas de comandos, rutas, accesibilidad y utilidades
 
 ### Comandos principales
@@ -48,7 +51,7 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 - `ls` — Lista el contenido del directorio actual (`ls -l` para modo largo).
 - `cd [ruta]` — Cambia de directorio; sin ruta vuelve a `/`. Acepta rutas relativas y absolutas, incluyendo `.` y `..`.
 - `cat <archivo|sección>` — Muestra contenido multilenguaje; acepta rutas relativas y absolutas, incluyendo `.` y `..`.
-- `idioma <es|en>` — Muestra o cambia el idioma cuando la sesión está en español; en inglés se usa `language <es|en>`.
+- `idioma <es|en>` / `language <es|en>` — Cambia el idioma de la sesión.
 - `pwd` — Muestra la ruta actual.
 - `clear` — Limpia la salida de la terminal.
 - `echo <texto>` — Muestra texto simple.
@@ -67,9 +70,11 @@ Al entrar, puedes escribir un nombre o pulsar `Enter` para continuar como `guest
 
 ### Notas para desarrolladores
 
-- Para añadir un comando, crea un archivo en `js/commands/` que exporte `{ id, aliases, description, execute(context,args,registry) }`, regístralo en `main.js` y añade pruebas.
+- El idioma inicial se detecta en el navegador: las variantes `es-*` usan español y el resto inglés. Inglés solo es fallback para idiomas no soportados; cambiar el idioma manualmente afecta a la sesión actual.
+- Para añadir un comando, crea un archivo en `js/commands/` que exporte `{ id, aliases, description, help, execute(context,args,registry) }` y regístralo en `commands/index.js`. La ayuda se genera desde sus metadatos `help.section` y `help.order`.
+- Para añadir un idioma, inclúyelo en `locales.js` y completa los catálogos de UI, aliases, rutas, accesibilidad, comandos, errores de calculadora y contenido del filesystem. `npm test` comprueba la cobertura de todos los idiomas soportados.
 - `SessionContext` (`context.js`) guarda el estado de la sesión. `storage.js` recuerda el nombre con `localStorage` cuando está disponible; si el navegador lo bloquea, la aplicación sigue funcionando sin guardarlo.
-- `aliases.js` reúne los alias en español e inglés. `parser.js` los resuelve antes de ejecutar cada comando.
+- `aliases.js` define en un mismo lugar los aliases de navegación, sus descripciones y su orden en la ayuda. `parser.js` los resuelve antes de ejecutar cada comando.
 - `filesystem.js` contiene únicamente el perfil breve y los datos de contacto en español e inglés.
 - `autocomplete.js` calcula las sugerencias. `main.js` gestiona Tab y el ciclo entre ellas.
 - La interfaz inserta texto con `textContent` y limita la salida a 600 nodos y el historial a 200 comandos.
@@ -121,6 +126,8 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 - `css/terminal.css` — terminal styles
 - `js/` — modular JS code
   - `main.js` — initialization, UI, input and keyboard flow
+  - `locales.js` — supported languages, detection and fallback
+  - `ui-text.js` — welcome and interface messages
   - `context.js` — session state and virtual path resolution
   - `filesystem.js` — virtual profile and contact content (multilanguage)
   - `parser.js` — tokenization, alias resolution and command dispatch
@@ -129,6 +136,7 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
   - `accessibility.js` — document language and accessible labels
   - `storage.js` — optional username persistence
   - `output.js` — command history rendering and node limit
+  - `commands/index.js` — single command registry
   - `commands/` — command implementations
   - `tests/` — command, path, accessibility and utility tests
 
@@ -138,7 +146,7 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 - `ls` — List directory contents (`ls -l` for long format).
 - `cd [path]` — Change directory; with no path, returns to `/`. Supports relative and absolute paths, including `.` and `..`.
 - `cat <file|section>` — Show multilingual content; supports relative and absolute paths, including `.` and `..`.
-- `idioma <es|en>` — Show or change the language in Spanish sessions; English sessions use `language <es|en>`.
+- `idioma <es|en>` / `language <es|en>` — Change the current session language.
 - `pwd` — Print working directory.
 - `clear` — Clear the terminal output.
 - `echo <text>` — Print plain text.
@@ -157,9 +165,11 @@ Enter a name when prompted, or press `Enter` to continue as `guest`. Then type a
 
 ### Developer notes
 
-- To add a command, create a file in `js/commands/` exporting `{ id, aliases, description, execute(context,args,registry) }`, register it in `main.js`, and add tests.
+- The initial language is detected from the browser: `es-*` variants use Spanish and all others use English. English is only the fallback for unsupported languages; a manual language change applies to the current session.
+- To add a command, create a file in `js/commands/` exporting `{ id, aliases, description, help, execute(context,args,registry) }` and register it in `commands/index.js`. Help is generated from its `help.section` and `help.order` metadata.
+- To add a language, include it in `locales.js` and complete the UI, aliases, paths, accessibility, command, calculator-error and filesystem-content catalogs. `npm test` checks catalog coverage for all supported languages.
 - `SessionContext` (`context.js`) holds live session state. `storage.js` remembers the username in `localStorage` when available; the app still works if the browser blocks storage.
-- `aliases.js` contains the Spanish and English aliases. `parser.js` resolves them before running a command.
+- `aliases.js` keeps navigation aliases, their descriptions and help order together. `parser.js` resolves them before running a command.
 - `filesystem.js` holds only the short profile and contact details in Spanish and English.
 - `autocomplete.js` calculates suggestions. `main.js` handles Tab and cycles through them.
 - The UI inserts text with `textContent` and caps output at 600 nodes and history at 200 commands.

@@ -8,6 +8,7 @@ import { getInternalName } from "./ls.js";
 
 const cdCommand = {
   id: "CD",
+  help: { section: "system", order: 20 },
   aliases: {
     es: ["cd"],
     en: ["cd"],

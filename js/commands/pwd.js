@@ -7,6 +7,7 @@ import { getDisplayPath } from "./ls.js";
 
 const pwdCommand = {
   id: "PWD",
+  help: { section: "system", order: 40 },
   aliases: {
     es: ["pwd"],
     en: ["pwd"],

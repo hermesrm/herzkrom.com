@@ -6,6 +6,7 @@ const PROFILES = {
       es: "Abre el perfil de GitHub",
       en: "Open the GitHub profile",
     },
+    helpOrder: 50,
   },
   linkedin: {
     href: "https://es.linkedin.com/in/hermesrm",
@@ -14,6 +15,7 @@ const PROFILES = {
       es: "Abre el perfil de LinkedIn",
       en: "Open the LinkedIn profile",
     },
+    helpOrder: 40,
   },
 };
 
@@ -22,6 +24,7 @@ function createProfileCommand(profileName) {
 
   return {
     id: profileName.toUpperCase(),
+    help: { section: "primary", order: profile.helpOrder },
     aliases: {
       es: [profileName],
       en: [profileName],

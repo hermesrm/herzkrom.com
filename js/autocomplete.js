@@ -1,15 +1,20 @@
 import { aliasRegistry } from "./aliases.js";
 import { resolvePath, resolveCwd } from "./context.js";
 import { getDisplayName } from "./commands/ls.js";
+import { SUPPORTED_LANGUAGES } from "./locales.js";
 
 function filterAliasesByLanguage(word, lang) {
   const current = aliasRegistry[lang] || {};
-  const other = aliasRegistry[lang === "es" ? "en" : "es"] || {};
+  const otherAliases = new Set(
+    SUPPORTED_LANGUAGES.filter((language) => language !== lang).flatMap((language) =>
+      Object.keys(aliasRegistry[language] || {})
+    )
+  );
   const normalizedWord = normalizeForMatch(word);
 
   return Object.keys(current)
     .filter((alias) => normalizeForMatch(alias).startsWith(normalizedWord))
-    .filter((alias) => !(alias in other));
+    .filter((alias) => !otherAliases.has(alias));
 }
 
 function normalizeForMatch(value) {

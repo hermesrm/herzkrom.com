@@ -5,6 +5,7 @@
 
 const echoCommand = {
   id: "ECHO",
+  help: { section: "system", order: 60 },
   aliases: {
     es: ["echo"],
     en: ["echo"],
@@ -15,6 +16,14 @@ const echoCommand = {
   },
 
   execute(context, args) {
+    if (args?.includes("--help")) {
+      const helpText =
+        context.lang === "es"
+          ? ["Uso: echo <texto>", "", "Muestra el texto indicado."].join("\n")
+          : ["Usage: echo <text>", "", "Display the given text."].join("\n");
+      return { output: helpText, code: 0 };
+    }
+
     if (!args || !args.length) {
       return "";
     }

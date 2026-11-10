@@ -8,6 +8,7 @@ import { getInternalName } from "./ls.js";
 
 const catCommand = {
   id: "CAT",
+  help: { section: "system", order: 30 },
   aliases: {
     es: ["cat"],
     en: ["cat"],

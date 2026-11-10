@@ -52,6 +52,7 @@ function getInternalName(displayName, lang) {
 
 const lsCommand = {
   id: "LS",
+  help: { section: "system", order: 10 },
   aliases: {
     es: ["ls"],
     en: ["ls"],
@@ -130,4 +131,4 @@ const lsCommand = {
   },
 };
 
-export { lsCommand, getDisplayName, getDisplayPath, getInternalName };
+export { directoryNames, lsCommand, getDisplayName, getDisplayPath, getInternalName };

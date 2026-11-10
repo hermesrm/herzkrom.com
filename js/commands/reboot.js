@@ -7,6 +7,7 @@
 // EN: Returns a signal so the main layer resets the session.
 const rebootCommand = {
   id: "REBOOT",
+  help: { section: "system", order: 100 },
   aliases: {
     es: ["reboot"],
     en: ["reboot"],

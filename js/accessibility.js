@@ -1,3 +1,5 @@
+import { getLocalizedValue } from "./locales.js";
+
 const ACCESSIBLE_LABELS = {
   terminal: {
     es: "Terminal interactiva",
@@ -15,8 +17,8 @@ function updateDocumentLanguage(lang, documentRef = globalThis.document) {
   documentRef.documentElement.lang = lang;
 
   for (const [id, labels] of Object.entries(ACCESSIBLE_LABELS)) {
-    documentRef.getElementById(id)?.setAttribute("aria-label", labels[lang]);
+    documentRef.getElementById(id)?.setAttribute("aria-label", getLocalizedValue(labels, lang));
   }
 }
 
-export { updateDocumentLanguage };
+export { ACCESSIBLE_LABELS, updateDocumentLanguage };

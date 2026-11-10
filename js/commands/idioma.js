@@ -4,12 +4,11 @@
    ============================= */
 
 import { updateDocumentLanguage } from "../accessibility.js";
-
-// ES: Idiomas soportados. EN: Supported languages.
-const SUPPORTED_LANGS = ["es", "en"];
+import { SUPPORTED_LANGUAGES } from "../locales.js";
 
 const languageCommand = {
   id: "SET_LANG",
+  help: { section: "primary", order: 20 },
   aliases: {
     es: ["idioma", "language"],
     en: ["language", "idioma"],
@@ -110,7 +109,7 @@ const languageCommand = {
 
     const requested = args[0].toLowerCase();
 
-    if (!SUPPORTED_LANGS.includes(requested)) {
+    if (!SUPPORTED_LANGUAGES.includes(requested)) {
       return {
         es: `Idioma no soportado: ${requested}. Usa 'idioma es' o 'idioma en'`,
         en: `Unsupported language: ${requested}. Use 'language es' or 'language en'`,

@@ -3,10 +3,11 @@
   Dynamic help command
   ============================= */
 
-import { aliasRegistry } from "../aliases.js";
+import { getNavigationHelpEntries } from "../aliases.js";
 
 const helpCommand = {
   id: "HELP",
+  help: { section: "system", order: 90 },
   aliases: {
     es: ["help"],
     en: ["help"],
@@ -67,63 +68,34 @@ const helpCommand = {
       return `${target}\n${cmd.description[context.lang]}`;
     }
 
-    // ES: help general devuelve estructura para render en columnas. EN: General help returns structure for column render.
     const lang = context.lang;
-    const aliases = Object.keys(aliasRegistry[lang] || {}); // Mantiene orden definido en aliases.js
-
-    const aliasDescriptions =
-      lang === "es"
-        ? {
-            perfil: "Perfil personal",
-            contacto: "Información de contacto",
-          }
-        : {
-            profile: "Personal profile",
-            contact: "Contact information",
-          };
-
-    const LINUX_IDS = new Set([
-      "LS",
-      "CD",
-      "CAT",
-      "PWD",
-      "CLEAR",
-      "ECHO",
-      "HISTORY",
-      "WHOAMI",
-      "HELP",
-      "REBOOT",
-    ]);
-    const native = commandRegistry.filter((c) => LINUX_IDS.has(c.id));
-    const additionalCommands = commandRegistry.filter((c) =>
-      ["SET_LANG", "CALC", "GITHUB", "LINKEDIN"].includes(c.id)
+    const navigationEntries = getNavigationHelpEntries(lang);
+    const commandEntries = commandRegistry
+      .filter((command) => command.help?.section)
+      .map((command) => ({
+        command: command.aliases[lang][0],
+        description: command.description[lang],
+        ...command.help,
+      }));
+    const helpSections = [...navigationEntries, ...commandEntries].reduce(
+      (sections, entry) => {
+        sections[entry.section].push(entry);
+        return sections;
+      },
+      { primary: [], system: [] }
     );
-    const primaryEntries = [
-      ...aliases.map((name) => ({
-        cmd: name,
-        desc: aliasDescriptions[name] || (lang === "es" ? "Comando principal" : "Primary command"),
-      })),
-      ...additionalCommands.map((cmd) => ({
-        cmd: cmd.aliases[lang][0],
-        desc: cmd.description[lang],
-      })),
-    ];
-    const primaryOrder =
-      lang === "es"
-        ? ["perfil", "idioma", "calc", "linkedin", "github", "contacto"]
-        : ["profile", "language", "calc", "linkedin", "github", "contact"];
-    const primaryEntriesByCommand = new Map(primaryEntries.map((entry) => [entry.cmd, entry]));
+    const sortHelpEntries = (entries) =>
+      entries
+        .sort((left, right) => left.order - right.order)
+        .map(({ command, description }) => ({ cmd: command, desc: description }));
 
     return {
       type: "help",
       lang,
       primaryTitle: lang === "es" ? "Comandos principales:" : "Primary commands:",
       systemTitle: lang === "es" ? "Comandos del sistema (Linux):" : "System commands (Linux):",
-      primary: primaryOrder.map((name) => primaryEntriesByCommand.get(name)).filter(Boolean),
-      system: native.map((cmd) => ({
-        cmd: cmd.aliases[lang][0],
-        desc: cmd.description[lang],
-      })),
+      primary: sortHelpEntries(helpSections.primary),
+      system: sortHelpEntries(helpSections.system),
       note: {
         es: "Nota: Esta es una simulación controlada. No se ejecutan comandos reales.",
         en: "Note: This is a controlled simulation. No real system commands are executed.",

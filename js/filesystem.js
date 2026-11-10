@@ -14,7 +14,7 @@
  * @typedef {Object} FileNode
  * @property {"file"} type
  * @property {string} name
- * @property {{es: string, en: string}} content
+ * @property {Record<string, string>} content
  */
 
 /**

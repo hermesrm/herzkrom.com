@@ -6,6 +6,7 @@ import {
 
 const calcCommand = {
   id: "CALC",
+  help: { section: "primary", order: 30 },
   aliases: {
     es: ["calc", "calcular"],
     en: ["calc", "math"],

@@ -1,3 +1,5 @@
+import { getLocalizedValue } from "./locales.js";
+
 const MAX_EXPRESSION_LENGTH = 256;
 const MAX_TOKEN_COUNT = 128;
 const TOKEN_PATTERN = /\s*([a-z]+|\*\*|[()+\-*/%^!,]|(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)/iy;
@@ -226,28 +228,30 @@ function isMathExpressionCandidate(input) {
   );
 }
 
-function getCalculatorErrorMessage(error, lang = "en") {
-  const messages = {
-    es: {
-      INVALID_EXPRESSION: "Expresión matemática inválida. Ejemplo: calc (2 + 3) * 4",
-      DIVISION_BY_ZERO: "No se puede dividir entre cero.",
-      DOMAIN_ERROR: "La operación está fuera del dominio matemático permitido.",
-      RESULT_OUT_OF_RANGE: "El resultado está fuera del rango permitido.",
-    },
-    en: {
-      INVALID_EXPRESSION: "Invalid math expression. Example: calc (2 + 3) * 4",
-      DIVISION_BY_ZERO: "Cannot divide by zero.",
-      DOMAIN_ERROR: "The operation is outside the supported mathematical domain.",
-      RESULT_OUT_OF_RANGE: "The result is out of range.",
-    },
-  };
+const CALCULATOR_ERROR_MESSAGES = {
+  es: {
+    INVALID_EXPRESSION: "Expresión matemática inválida. Ejemplo: calc (2 + 3) * 4",
+    DIVISION_BY_ZERO: "No se puede dividir entre cero.",
+    DOMAIN_ERROR: "La operación está fuera del dominio matemático permitido.",
+    RESULT_OUT_OF_RANGE: "El resultado está fuera del rango permitido.",
+  },
+  en: {
+    INVALID_EXPRESSION: "Invalid math expression. Example: calc (2 + 3) * 4",
+    DIVISION_BY_ZERO: "Cannot divide by zero.",
+    DOMAIN_ERROR: "The operation is outside the supported mathematical domain.",
+    RESULT_OUT_OF_RANGE: "The result is out of range.",
+  },
+};
 
-  return messages[lang]?.[error?.code] || messages.en.INVALID_EXPRESSION;
+function getCalculatorErrorMessage(error, lang = "en") {
+  const messages = getLocalizedValue(CALCULATOR_ERROR_MESSAGES, lang);
+  return messages?.[error?.code] || messages.INVALID_EXPRESSION;
 }
 
 export {
   evaluateExpression,
   formatExpressionResult,
+  CALCULATOR_ERROR_MESSAGES,
   getCalculatorErrorMessage,
   isMathExpressionCandidate,
 };

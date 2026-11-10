@@ -1,0 +1,48 @@
+const UI_TEXT = {
+  es: {
+    guest: "Invitado",
+    welcomeBack: (name) => `¡Bienvenido/a de vuelta, ${name}!`,
+    continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
+    answerLabel: "Respuesta",
+    welcomeLines: [
+      "¡Bienvenido/a a herzkrom.com!",
+      "",
+      "Perfil interactivo en modo CLI (Command‑Line Interface)",
+      "",
+      "Puede explorar el perfil mediante la simulación de comandos.",
+      "",
+    ],
+    nameHint: "Introduzca su nombre si desea personalizar la sesión.",
+    nameLabel: "Nombre",
+    nameOptional: "(opcional)",
+    nameNewHint: "(nuevo)",
+    newNamePrompt: "Ingrese un nuevo nombre:",
+    startHint: "# Escriba 'help' para ver los comandos.",
+    invalidYesNo: "Por favor, responde con 's' (sí) o 'n' (no)",
+    welcome: (name) => `¡Bienvenido/a, ${name}!`,
+  },
+  en: {
+    guest: "Guest",
+    welcomeBack: (name) => `Welcome back, ${name}!`,
+    continueQuestion: "Do you want to continue with this username? (y/n)",
+    answerLabel: "Answer",
+    welcomeLines: [
+      "Welcome to herzkrom.com!",
+      "",
+      "Interactive CLI‑Mode Profile (Command‑Line Interface)",
+      "",
+      "Explore the profile through simulated commands.",
+      "",
+    ],
+    nameHint: "Enter your name if you want to personalize the session.",
+    nameLabel: "Name",
+    nameOptional: "(optional)",
+    nameNewHint: "(new)",
+    newNamePrompt: "Enter a new name:",
+    startHint: "# Type 'help' to see the available commands.",
+    invalidYesNo: "Please answer with 'y' (yes) or 'n' (no)",
+    welcome: (name) => `Welcome, ${name}!`,
+  },
+};
+
+export { UI_TEXT };
