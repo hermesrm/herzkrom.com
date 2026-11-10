@@ -96,7 +96,7 @@ const helpCommand = {
     ]);
     const native = commandRegistry.filter((c) => LINUX_IDS.has(c.id));
     const additionalCommands = commandRegistry.filter((c) =>
-      ["CALC", "GITHUB", "LINKEDIN"].includes(c.id)
+      ["SET_LANG", "CALC", "GITHUB", "LINKEDIN"].includes(c.id)
     );
 
     return {

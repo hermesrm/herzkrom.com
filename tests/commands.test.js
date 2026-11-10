@@ -417,6 +417,21 @@ export function runCommandTests(test) {
     assert(output.primary.some((item) => item.cmd === "calc"), "Expected calc in primary help");
     assert(output.primary.some((item) => item.cmd === "github"), "Expected GitHub shortcut in help");
     assert(output.primary.some((item) => item.cmd === "linkedin"), "Expected LinkedIn shortcut in help");
+
+    for (const [lang, expectedCommand] of [
+      ["es", "idioma"],
+      ["en", "language"],
+    ]) {
+      const localizedHelp = helpCommand.execute(
+        createContext(lang),
+        [],
+        [helpCommand, languageCommand]
+      );
+      assert(
+        localizedHelp.primary.some((item) => item.cmd === expectedCommand),
+        `Expected ${expectedCommand} in ${lang} primary help`
+      );
+    }
   });
 
   test("contact and profile commands: expose the requested links", () => {
