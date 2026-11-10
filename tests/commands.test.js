@@ -418,18 +418,18 @@ export function runCommandTests(test) {
     assert(output.primary.some((item) => item.cmd === "github"), "Expected GitHub shortcut in help");
     assert(output.primary.some((item) => item.cmd === "linkedin"), "Expected LinkedIn shortcut in help");
 
-    for (const [lang, expectedCommand] of [
-      ["es", "idioma"],
-      ["en", "language"],
+    for (const [lang, expectedOrder] of [
+      ["es", ["perfil", "idioma", "calc", "linkedin", "github", "contacto"]],
+      ["en", ["profile", "language", "calc", "linkedin", "github", "contact"]],
     ]) {
       const localizedHelp = helpCommand.execute(
         createContext(lang),
         [],
-        [helpCommand, languageCommand]
+        [helpCommand, languageCommand, calcCommand, ...profileLinkCommands]
       );
       assert(
-        localizedHelp.primary.some((item) => item.cmd === expectedCommand),
-        `Expected ${expectedCommand} in ${lang} primary help`
+        JSON.stringify(localizedHelp.primary.map((item) => item.cmd)) === JSON.stringify(expectedOrder),
+        `Expected non-Linux commands in requested order for ${lang}`
       );
     }
   });

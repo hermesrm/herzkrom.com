@@ -98,22 +98,28 @@ const helpCommand = {
     const additionalCommands = commandRegistry.filter((c) =>
       ["SET_LANG", "CALC", "GITHUB", "LINKEDIN"].includes(c.id)
     );
+    const primaryEntries = [
+      ...aliases.map((name) => ({
+        cmd: name,
+        desc: aliasDescriptions[name] || (lang === "es" ? "Comando principal" : "Primary command"),
+      })),
+      ...additionalCommands.map((cmd) => ({
+        cmd: cmd.aliases[lang][0],
+        desc: cmd.description[lang],
+      })),
+    ];
+    const primaryOrder =
+      lang === "es"
+        ? ["perfil", "idioma", "calc", "linkedin", "github", "contacto"]
+        : ["profile", "language", "calc", "linkedin", "github", "contact"];
+    const primaryEntriesByCommand = new Map(primaryEntries.map((entry) => [entry.cmd, entry]));
 
     return {
       type: "help",
       lang,
       primaryTitle: lang === "es" ? "Comandos principales:" : "Primary commands:",
       systemTitle: lang === "es" ? "Comandos del sistema (Linux):" : "System commands (Linux):",
-      primary: [
-        ...aliases.map((name) => ({
-          cmd: name,
-          desc: aliasDescriptions[name] || (lang === "es" ? "Comando principal" : "Primary command"),
-        })),
-        ...additionalCommands.map((cmd) => ({
-          cmd: cmd.aliases[lang][0],
-          desc: cmd.description[lang],
-        })),
-      ],
+      primary: primaryOrder.map((name) => primaryEntriesByCommand.get(name)).filter(Boolean),
       system: native.map((cmd) => ({
         cmd: cmd.aliases[lang][0],
         desc: cmd.description[lang],
