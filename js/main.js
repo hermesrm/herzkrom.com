@@ -117,6 +117,7 @@ const PROMPT_USERNAME_REGEX = /^[a-z0-9]+$/; // Solo minúsculas y dígitos, sin
 const UI_TEXT = {
   es: {
     guest: "Invitado",
+    guestPrompt: "invitado",
     welcomeBack: (name) => `¡Bienvenido/a de vuelta, ${name}!`,
     continueQuestion: "¿Deseas continuar con este nombre de usuario? (s/n)",
     answerLabel: "Respuesta",
@@ -140,6 +141,7 @@ const UI_TEXT = {
   },
   en: {
     guest: "Guest",
+    guestPrompt: "Guest",
     welcomeBack: (name) => `Welcome back, ${name}!`,
     continueQuestion: "Do you want to continue with this username? (y/n)",
     answerLabel: "Answer",
@@ -402,7 +404,7 @@ function printCommandHistory(userHost, path, command) {
 
 function buildPrompt() {
   const visitorName = SessionContext.visitor.name;
-  const user = visitorName && visitorName !== "guest" ? visitorName : t("guest");
+  const user = visitorName && visitorName !== "guest" ? visitorName : t("guestPrompt");
   const host = "herzkrom.com";
   const path = getCwdPath(SessionContext);
 
