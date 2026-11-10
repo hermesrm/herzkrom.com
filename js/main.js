@@ -3,7 +3,7 @@
    Application entry point
    ============================= */
 
-import { SessionContext, getCwdPath } from "./context.js";
+import { SessionContext } from "./context.js";
 import { executeInput, resolveAlias, tokenize } from "./parser.js";
 import { aliasRegistry } from "./aliases.js";
 import { saveUsername, getSavedUsername, clearSavedUsername } from "./storage.js";
@@ -14,7 +14,7 @@ import { trimOutputNodes, appendCommandHistory, appendTextWithSafeLinks } from "
 import { isInputDebugEnabled } from "./debug.js";
 
 // Commands
-import { lsCommand } from "./commands/ls.js";
+import { lsCommand, getDisplayPath } from "./commands/ls.js";
 import { cdCommand } from "./commands/cd.js";
 import { catCommand } from "./commands/cat.js";
 import { helpCommand } from "./commands/help.js";
@@ -405,7 +405,7 @@ function printCommandHistory(userHost, path, command) {
 function buildPrompt() {
   const user = getPromptUsername(SessionContext.visitor.name, SessionContext.lang);
   const host = "herzkrom.com";
-  const path = getCwdPath(SessionContext);
+  const path = getDisplayPath(SessionContext);
 
   // Reemplazar la ruta de inicio con ~ y mantenerlo en rutas anidadas
   const displayPath = path === "/" ? "~" : "~" + path;

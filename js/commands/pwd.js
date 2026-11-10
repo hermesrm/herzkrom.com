@@ -3,7 +3,7 @@
    Print working directory
    ============================= */
 
-import { getCwdPath } from "../context.js";
+import { getDisplayPath } from "./ls.js";
 
 const pwdCommand = {
   id: "PWD",
@@ -65,7 +65,7 @@ const pwdCommand = {
         };
       }
     }
-    return getCwdPath(context);
+    return getDisplayPath(context);
   },
 };
 

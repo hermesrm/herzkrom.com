@@ -15,6 +15,11 @@ function getDisplayName(name, lang) {
   return directoryNames[name]?.[lang] || name;
 }
 
+function getDisplayPath(context) {
+  if (!context.cwd.length) return "/";
+  return "/" + context.cwd.map((name) => getDisplayName(name, context.lang)).join("/");
+}
+
 function normalizeName(value) {
   return (value || "")
     .normalize("NFD")
@@ -125,4 +130,4 @@ const lsCommand = {
   },
 };
 
-export { lsCommand, getDisplayName, getInternalName };
+export { lsCommand, getDisplayName, getDisplayPath, getInternalName };

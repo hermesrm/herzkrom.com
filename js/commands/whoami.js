@@ -65,7 +65,7 @@ const whoamiCommand = {
     }
     const visitorName = context.visitor.name;
     if (!visitorName || visitorName === "guest") {
-      return context.lang === "es" ? "Invitado" : "Guest";
+      return context.lang === "es" ? "invitado" : "guest";
     }
     return visitorName;
   },

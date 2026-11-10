@@ -234,14 +234,26 @@ export function runCommandTests(test) {
 
   test("whoami: localizes the guest user and preserves custom usernames", () => {
     const spanishContext = createContext("es");
-    assert(whoamiCommand.execute(spanishContext, []) === "Invitado", "Expected Spanish guest name");
+    assert(whoamiCommand.execute(spanishContext, []) === "invitado", "Expected lowercase Spanish guest name");
     spanishContext.visitor.name = "guest";
-    assert(whoamiCommand.execute(spanishContext, []) === "Invitado", "Expected Spanish guest id to be localized");
+    assert(whoamiCommand.execute(spanishContext, []) === "invitado", "Expected lowercase Spanish guest id");
     spanishContext.visitor.name = "ana";
     assert(whoamiCommand.execute(spanishContext, []) === "ana", "Expected custom username to remain unchanged");
 
     const englishContext = createContext("en");
-    assert(whoamiCommand.execute(englishContext, []) === "Guest", "Expected English guest name");
+    assert(whoamiCommand.execute(englishContext, []) === "guest", "Expected lowercase English guest name");
+  });
+
+  test("pwd: displays directory names in the active language", () => {
+    const context = createContext("es");
+    context.cwd = ["profile"];
+    assert(pwdCommand.execute(context, []) === "/perfil", "Expected Spanish display path");
+    context.lang = "en";
+    assert(pwdCommand.execute(context, []) === "/profile", "Expected English display path");
+    context.cwd = ["contact"];
+    assert(pwdCommand.execute(context, []) === "/contact", "Expected English contact path");
+    context.lang = "es";
+    assert(pwdCommand.execute(context, []) === "/contacto", "Expected Spanish contact path");
   });
 
   test("prompt: localizes the guest username and preserves custom usernames", () => {
