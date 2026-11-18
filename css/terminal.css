@@ -166,6 +166,7 @@ body {
   border: none;
   padding: 0;
   margin: 0;
+  text-transform: none;
   background: transparent;
   color: transparent;
   caret-color: transparent;
