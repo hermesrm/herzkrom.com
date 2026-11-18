@@ -10,6 +10,7 @@ import { clearCommand } from "./clear.js";
 import { echoCommand } from "./echo.js";
 import { rebootCommand } from "./reboot.js";
 import { calcCommand } from "./calc.js";
+import { matrixCommand } from "./matrix.js";
 import { profileLinkCommands } from "./profile-links.js";
 
 const commandRegistry = [
@@ -25,6 +26,7 @@ const commandRegistry = [
   echoCommand,
   rebootCommand,
   calcCommand,
+  matrixCommand,
   ...profileLinkCommands,
 ];
 

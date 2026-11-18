@@ -30,6 +30,7 @@ const inputEl = document.getElementById("command");
 const suggestionsEl = document.getElementById("suggestions");
 const hiddenInputEl = document.getElementById("hidden-input");
 const inputLineEl = document.querySelector(".input-line");
+const matrixCanvas = document.getElementById("matrix-canvas");
 let keyboardOffset = 0;
 let clampScheduled = false;
 
@@ -42,6 +43,255 @@ const debugInput = isInputDebugEnabled(window.location);
 if (document.body) {
   document.body.classList.toggle("desktop-input", desktopKeyHandlingEnabled);
 }
+
+let matrixActive = false;
+let matrixFrame = 0;
+let matrixLastFrame = 0;
+let matrixDrops = [];
+let matrixTextSnapshot = [];
+let matrixColumnOffsets = new Map();
+let matrixTransitionComplete = false;
+
+function snapshotMatrixText() {
+  matrixTextSnapshot = [];
+  if (!terminal) return;
+
+  const terminalRect = terminal.getBoundingClientRect();
+  const targets = [output, inputLineEl].filter(Boolean);
+
+  for (const target of targets) {
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    let textNode = walker.nextNode();
+
+    while (textNode) {
+      const parent = textNode.parentElement;
+      if (parent && textNode.textContent) {
+        const style = getComputedStyle(parent);
+
+        for (let index = 0; index < textNode.length; index += 1) {
+          const character = textNode.textContent[index];
+          if (!character || character === "\n") continue;
+
+          const range = document.createRange();
+          range.setStart(textNode, index);
+          range.setEnd(textNode, index + 1);
+          const rect = range.getBoundingClientRect();
+
+          if (rect.width > 0 && rect.height > 0) {
+            matrixTextSnapshot.push({
+              character,
+              x: rect.left - terminalRect.left,
+              y: rect.top - terminalRect.top,
+              width: rect.width,
+              height: rect.height,
+              color: style.color,
+              font: style.font,
+            });
+          }
+        }
+      }
+
+      textNode = walker.nextNode();
+    }
+  }
+}
+
+function resizeMatrixCanvas() {
+  if (!matrixCanvas || !terminal) return;
+
+  const rect = terminal.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  matrixCanvas.width = Math.max(1, Math.floor(rect.width * dpr));
+  matrixCanvas.height = Math.max(1, Math.floor(rect.height * dpr));
+
+  const context = matrixCanvas.getContext("2d");
+  if (!context) return;
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const style = getComputedStyle(output || terminal);
+  const fontSize = Number.parseFloat(style.fontSize) || 16;
+  const cellWidth = fontSize * 0.62;
+  const lineHeight = Number.parseFloat(style.lineHeight) || fontSize * 1.45;
+  const columns = Math.ceil(rect.width / cellWidth);
+  const rows = Math.ceil(rect.height / lineHeight);
+
+  matrixDrops = Array.from({ length: columns }, (_, columnIndex) => {
+    const active = Math.random() < 0.82;
+    return {
+      columnIndex,
+      headRow: active ? -Math.floor(Math.random() * rows * 1.2) : -rows,
+      speed: 0.65 + Math.random() * 0.45,
+      trailLength: 7 + Math.floor(Math.random() * 12),
+      active,
+      swept: false,
+      resetDelay: 0,
+    };
+  });
+}
+
+function drawMatrixFrame(timestamp) {
+  if (!matrixActive || !matrixCanvas) return;
+
+  const context = matrixCanvas.getContext("2d");
+  if (!context) return;
+
+  if (timestamp - matrixLastFrame < 105) {
+    matrixFrame = requestAnimationFrame(drawMatrixFrame);
+    return;
+  }
+  matrixLastFrame = timestamp;
+
+  const rect = terminal.getBoundingClientRect();
+  const style = getComputedStyle(output || terminal);
+  const fontSize = Number.parseFloat(style.fontSize) || 16;
+  const lineHeight = Number.parseFloat(style.lineHeight) || fontSize * 1.45;
+  const cellWidth = fontSize * 0.62;
+  const characters = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾚﾛﾜﾝ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  context.clearRect(0, 0, rect.width, rect.height);
+  context.font = style.font;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+
+  for (const drop of matrixDrops) {
+    const x = (drop.columnIndex + 0.5) * cellWidth;
+
+    if (drop.active) {
+      drop.headRow += drop.speed;
+
+      for (let trail = 0; trail < drop.trailLength; trail += 1) {
+        const row = Math.floor(drop.headRow - trail);
+        const y = (row + 0.5) * lineHeight;
+        if (row < -drop.trailLength || y > rect.height + lineHeight) continue;
+
+        const character = characters[Math.floor(Math.random() * characters.length)];
+        const intensity = 1 - trail / drop.trailLength;
+
+        if (trail === 0) {
+          context.fillStyle = "#effff3";
+        } else {
+          const green = 110 + Math.floor(intensity * 145);
+          context.fillStyle = `rgba(${Math.floor(green * 0.18)}, ${green}, ${Math.floor(green * 0.38)}, ${0.25 + intensity * 0.75})`;
+        }
+        context.fillText(character, x, y);
+
+        if (trail === 0) {
+          matrixTextSnapshot = matrixTextSnapshot.filter((textCharacter) => {
+            const column = Math.round(textCharacter.x / cellWidth);
+            const textRow = Math.round(textCharacter.y / lineHeight);
+            return !(column === drop.columnIndex && textRow === row);
+          });
+        }
+      }
+
+      if (drop.headRow * lineHeight > rect.height + drop.trailLength * lineHeight) {
+        drop.swept = true;
+        drop.active = false;
+        drop.resetDelay = 18 + Math.floor(Math.random() * 35);
+      }
+    } else {
+      drop.resetDelay -= 1;
+      if (drop.resetDelay <= 0) {
+        drop.active = true;
+        drop.headRow = -Math.floor(drop.trailLength * (0.5 + Math.random()));
+        drop.speed = 0.65 + Math.random() * 0.45;
+      }
+    }
+  }
+
+  context.textAlign = "left";
+  context.textBaseline = "alphabetic";
+
+  if (!matrixTransitionComplete && matrixTextSnapshot.length === 0) {
+    matrixTransitionComplete = true;
+    matrixTextSnapshot = [];
+    matrixColumnOffsets = new Map();
+  }
+
+  if (matrixTransitionComplete) {
+    for (const drop of matrixDrops) {
+      drop.active = true;
+      if (drop.headRow * lineHeight > rect.height + drop.trailLength * lineHeight) {
+        drop.headRow = -Math.floor(Math.random() * rowsForMatrix(rect.height, lineHeight));
+        drop.speed = 0.7 + Math.random() * 0.35;
+        drop.trailLength = 9 + Math.floor(Math.random() * 14);
+      }
+    }
+  }
+
+  if (matrixTransitionComplete) {
+    matrixFrame = requestAnimationFrame(drawMatrixFrame);
+    return;
+  }
+
+  for (const character of matrixTextSnapshot) {
+    let columnOffset = matrixColumnOffsets.get(character.x) || 0;
+    if (columnOffset > 0.15) {
+      matrixColumnOffsets.set(character.x, columnOffset * 0.992);
+    } else {
+      matrixColumnOffsets.set(character.x, 0);
+      columnOffset = 0;
+    }
+
+    context.font = character.font;
+    context.fillStyle = columnOffset > 0 ? "#b8ffc9" : character.color;
+    context.fillText(
+      character.character,
+      character.x,
+      character.y + character.height * 0.82 + columnOffset
+    );
+  }
+
+  matrixFrame = requestAnimationFrame(drawMatrixFrame);
+}
+
+function rowsForMatrix(height, lineHeight) {
+  return Math.ceil(height / lineHeight);
+}
+
+function startMatrixEffect() {
+  if (!matrixCanvas || !terminal) return;
+
+  matrixActive = true;
+  terminal.classList.add("matrix-active");
+  resizeMatrixCanvas();
+  snapshotMatrixText();
+  matrixColumnOffsets = new Map();
+  matrixTransitionComplete = false;
+  setInputValue("");
+  hiddenInputEl?.blur();
+  matrixLastFrame = 0;
+  matrixFrame = requestAnimationFrame(drawMatrixFrame);
+}
+
+function stopMatrixEffect() {
+  if (!matrixActive) return;
+
+  matrixActive = false;
+  cancelAnimationFrame(matrixFrame);
+  terminal?.classList.remove("matrix-active");
+
+  matrixTextSnapshot = [];
+  matrixColumnOffsets = new Map();
+  matrixTransitionComplete = false;
+
+  const context = matrixCanvas?.getContext("2d");
+  context?.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  focusHiddenInput();
+}
+
+matrixCanvas?.addEventListener("click", stopMatrixEffect);
+matrixCanvas?.addEventListener("touchstart", stopMatrixEffect, { passive: true });
+window.addEventListener("resize", () => {
+  if (matrixActive) resizeMatrixCanvas();
+});
+document.addEventListener("keydown", (event) => {
+  if (!matrixActive) return;
+  if (event.key === "Escape" || event.key.toLowerCase() === "q") {
+    event.preventDefault();
+    stopMatrixEffect();
+  }
+});
 
 if (desktopKeyHandlingEnabled && terminal) {
   terminal.addEventListener("mousedown", () => terminal.focus({ preventScroll: true }));
@@ -564,6 +814,12 @@ async function handleEnter() {
     return;
   }
 
+  // ES: Señal para iniciar la cascada de código. EN: Start code cascade signal.
+  if (result === "__MATRIX__") {
+    startMatrixEffect();
+    return;
+  }
+
   // ES: Señal para limpiar consola. EN: Clear console signal.
   if (result === "__CLEAR__") {
     output.innerHTML = "";
@@ -689,7 +945,18 @@ if (!hiddenInputEl) {
     }
 
     if (e.key === "Escape") {
-      clearSuggestions();
+      if (matrixActive) {
+        e.preventDefault();
+        stopMatrixEffect();
+      } else {
+        clearSuggestions();
+      }
+      return;
+    }
+
+    if (matrixActive && e.key.toLowerCase() === "q") {
+      e.preventDefault();
+      stopMatrixEffect();
       return;
     }
 

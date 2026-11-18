@@ -14,6 +14,7 @@ import { appendCommandHistory, appendTextWithSafeLinks } from "../js/output.js";
 import { isInputDebugEnabled } from "../js/debug.js";
 import { CALCULATOR_ERROR_MESSAGES } from "../js/calculator.js";
 import { calcCommand } from "../js/commands/calc.js";
+import { matrixCommand } from "../js/commands/matrix.js";
 import { profileLinkCommands } from "../js/commands/profile-links.js";
 import { getPromptUsername, PROMPT_GUEST_NAMES } from "../js/prompt.js";
 import { FALLBACK_LANGUAGE, SUPPORTED_LANGUAGES, resolveLanguage } from "../js/locales.js";
@@ -101,6 +102,16 @@ export function runCommandTests(test) {
     }
 
     inspectFilesystem(fileSystem);
+  });
+
+  test("matrix: starts the full-screen effect and validates arguments", () => {
+    const context = createContext("es");
+
+    assert(matrixCommand.execute(context, []) === "__MATRIX__", "Expected matrix start signal");
+    assert(matrixCommand.execute(context, ["--help"]).code === 0, "Expected matrix help");
+
+    const invalid = matrixCommand.execute(context, ["--bad"]);
+    assert(invalid.code === 1 && invalid.output.includes("opción inválida"), "Expected matrix argument error");
   });
 
   test("debug input: enabled only on localhost", () => {

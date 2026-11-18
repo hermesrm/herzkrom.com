@@ -54,6 +54,32 @@ body {
   user-select: text;
 }
 
+#matrix-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  z-index: 22;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#terminal.matrix-active {
+  overflow: hidden;
+}
+
+#terminal.matrix-active #output,
+#terminal.matrix-active .input-line {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#terminal.matrix-active #matrix-canvas {
+  display: block;
+}
+
 /* Área de salida / Output area */
 #output {
   white-space: pre-wrap;
