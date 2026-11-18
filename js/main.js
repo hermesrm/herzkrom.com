@@ -638,7 +638,17 @@ if (!hiddenInputEl) {
 } else {
   let isComposing = false;
 
+  const normalizeCommandInput = () => {
+    if (!awaitingName && hiddenInputEl.value) {
+      const normalized = hiddenInputEl.value.charAt(0).toLowerCase() + hiddenInputEl.value.slice(1);
+      if (normalized !== hiddenInputEl.value) {
+        hiddenInputEl.value = normalized;
+      }
+    }
+  };
+
   const syncInputFromHidden = () => {
+    normalizeCommandInput();
     inputEl.textContent = hiddenInputEl.value;
   };
 
